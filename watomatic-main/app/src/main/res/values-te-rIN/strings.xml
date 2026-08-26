@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">మా గురించి</string>
+    <string name="settings">అమరికలు</string>
+    <string name="privacy_policy_label">గోప్యతా విధానం</string>
+    <string name="decline">నిరాకరించండి</string>
+    <string name="retry">తిరిగి ప్రయత్నించండి</string>
+    <string name="permission_dialog_title">అనుమతి అవసరం</string>
+    <!-- Select apps to auto reply -->
+    <!-- Group chats -->
+    <!-- Custom message editor -->
+    <string name="watomatic_whatsnew_label">కొత్తవి ఏమిటి?</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <!-- App Rating Dialog -->
+    <!--Autostart Permission Dialog-->
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>

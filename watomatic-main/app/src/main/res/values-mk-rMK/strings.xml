@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">За Watomatic</string>
+    <string name="settings">Поставки</string>
+    <string name="privacy_policy_label">Политика за приватност</string>
+    <string name="service_name">Следење на известувања за дојдовни пораки</string>
+    <string name="mainAutoReplyTextPlaceholder">(Прилагоден одговор)</string>
+    <string name="auto_reply_default_message">Автоматско одговарање\n⚠️ Корисникот не е достапен</string>
+    <string name="mainAutoReplyLabel">Текст за автоматско одговарање</string>
+    <string name="mainAutoReplySwitchOffLabel">Автоматскиот одговор е ИСКЛУЧЕН</string>
+    <string name="mainAutoReplySwitchOnLabel">Автоматскиот одговор е ВКЛУЧЕН</string>
+    <string name="mainAutoReplyEditBtnTooltip">Кликнете за да го уредите текстот за автоматски одговор</string>
+    <string name="decline">Одбиј</string>
+    <string name="accept">Прифати</string>
+    <string name="sure">Сигурен сум</string>
+    <string name="retry">Обиди се повторно</string>
+    <string name="permission_dialog_title">Потребна е дозвола</string>
+    <string name="permission_dialog_msg">Оваа апликација бара дозвола за пристап до известувањата за да работи.</string>
+    <string name="permission_dialog_denied_title">Дозволата е одбиена</string>
+    <string name="permission_dialog_denied_msg">Без оваа дозвола, апликацијата не може автоматски да одговори на известувањата. Дали сте сигурни дека сакате да ја одбиете дозволата?</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">Овозможи за овие апликации</string>
+    <string name="enable_auto_reply_switch_msg">Прво вклучете го автоматскиот одговор.</string>
+    <string name="error_atleast_single_app_must_be_selected">Грешка: Изберете најмалку една апликација</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Автоматски одговор за групни разговори</string>
+    <string name="group_reply_on_info_message">Вклучен автоматски одговор за групни разговори</string>
+    <string name="group_reply_off_info_message">Искличен автоматски одговор за групни разговори</string>
+    <string name="time_picker_title">Број на одговори (BETA)</string>
+    <string name="time_picker_sub_title_default">Одговорете на сите пораки без ограничувања</string>
+    <string name="time_picker_sub_title">Одговори само еднаш на секои %1$d ден(а) на секоја личност или група</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Кликнете за да го прилагодите времето помеѓу одговорите</string>
+    <string name="app_version">Верзија%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">Зачувај</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u>Прегледајте ги шаблоните од заедницата и споделете ги и вашите ➚</u></string>
+    <string name="share">Сподели</string>
+    <string name="watomatic_subreddit_label"><u>Ајде да дискутираме\nr/watomatic</u></string>
+    <string name="watomatic_whatsnew_label">Што е ново?</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">Прикажи известување за автоматски одговорени пораки</string>
+    <string name="preference_category_general_label">Општи поставки</string>
+    <string name="preference_category_notifications_label">Известувања</string>
+    <string name="preference_category_troubleshooting_label">Решавање на проблеми</string>
+    <string name="enable_auto_start_label">Овозможи автоматско стартување</string>
+    <string name="add_attribution_label">Додај атрибут</string>
+    <string name="enabled_apps_title">Овозможени апликации</string>
+    <string name="enable_auto_start_summary">На некои можеби ќе треба рачно да вклучите Автоматско Стартување за Watomatic во поставките на уредот</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">Јазик на апликација</string>
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">Што мислиш?</string>
+    <string name="app_rating_dialog_msg">Ние сме заинтересирани за тоа што мислите за апликацијата. Допрете на ѕвездите погоре за да ја оцените.</string>
+    <string name="app_rating_dialog_rate_button_title">Оцени ја апликацијата!</string>
+    <string name="app_rating_dialog_rate_later_title">Можеби подоцна</string>
+    <string name="app_rating_goto_store_dialog_title">Ние сме среќни!</string>
+    <string name="app_rating_pitch">Оваа апликација е бесплатна, нема реклами, нема следење, со отворен код и е направена од соработници како вас и јас.        Вашите повратни информации се единствена наша поддршка.</string>
+    <string name="app_rating_goto_store_dialog_button1_title">Не сум заинтересиран</string>
+    <string name="app_rating_goto_store_dialog_button2_title">Продолжи</string>
+    <string name="app_rating_feedback_dialog_title">Контактирајте нè</string>
+    <string name="app_rating_feedback_dialog_msg">Споделете го вашето мислење за тоа како да ја подобриме апликацијата.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">Испратете ни е-пошта</string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">Telegram</string>
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">Дозвола за автоматско стартување</string>
+    <string name="running_in_the_background">Работи во позадина</string>
+    <string name="auto_start_permission_dialog_message">Овозможете дозвола \"Автоматско стартување\" во поставките на уредот за да дозволите Watomatic да се вклучи на уредот по рестартирање.</string>
+    <string name="device_based_settings_message">Забелешка: Во зависност од вашиот уред, поставките може да бидат различни или да не се достапни</string>
+    <string name="setting_not_available_for_device">Оваа поставка не е достапна или можеби не е потребна за вашиот уред.</string>
+    <string name="enable_auto_start_setting">Продолжи</string>
+    <string name="decline_auto_start_setting">Откажи</string>
+    <string name="app_not_installed_text">Не е инсталирана</string>
+    <string name="contact_based_reply">Одговори базирани на контакти</string>
+    <string name="contact_reply_type">Одговори на</string>
+    <string name="blacklist">Сите други, освен избраните контакти</string>
+    <string name="whitelist">Никој друг, освен избраните контакти</string>
+    <string name="enable_contact_based_reply">Овозможи одговори базирани на контакти</string>
+    <string name="contact_selector">Избор на контакти</string>
+    <string name="select_all">Избери ги сите</string>
+    <string name="select_none">Отстрани избор</string>
+    <string name="contact_permission_dialog_msg">Потребен е пристап до контактите за филтрирање на имињата и овозможување на оваа функција. Дали сакате да продолжите?</string>
+    <string name="contact_permission_dialog_proceed">Продолжи</string>
+    <string name="contact_permission_dialog_cancel">Откажи</string>
+    <string name="undo">Врати</string>
+    <string name="all_contacts_selected">Избрани се сите контакти</string>
+    <string name="donations_activity_title">Донации</string>
+    <string name="donations_goal_title_70">Бавен и стабилен напредок</string>
+    <string name="donations_goal_70">Мали подобрувања на функциите и интерфејсот</string>
+    <string name="add_custom_contact">Додај сопствено име за контакт</string>
+    <string name="contact_permission_suggestion_dialog_msg">Потребен е пристап за читање на контакти за да се филтрираат одговорите по имиња на контакти. Ако пристапот не е овозможен, ќе бидат дозволени само рачно внесени имиња. Дали сакате да го овозможите пристапот?</string>
+    <string name="contact_permission_dialog_enable_permission">Овозможете дозвола за контакти</string>
+    <string name="contact_permission_dialog_not_now">Не сега</string>
+    <string name="contact_permission_dialog_title">Пристап до читање на контакти</string>
+    <string name="delete">Избриши</string>
+    <string name="decrease_frequency">Намали ја фреквенцијата</string>
+    <string name="increase_frequency">Зголеми ја фреквенцијата</string>
+    <string name="error_name_cannot_be_blank">Името не може да биде празно</string>
+    <string name="error_name_cannot_be_duplicate">Името веќе постои</string>
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>

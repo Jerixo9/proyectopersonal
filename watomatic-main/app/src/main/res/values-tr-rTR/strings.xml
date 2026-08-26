@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">Hakkında </string>
+    <string name="settings">Ayarlar </string>
+    <string name="privacy_policy_label">Gizlilik Politikası </string>
+    <string name="service_name">Gelen Mesaj Bildirim Dinleyicisi </string>
+    <string name="mainAutoReplyTextPlaceholder">(Özel Yanıt) </string>
+    <string name="auto_reply_default_message">Otomatik Yanıt \ n⚠️ Kullanıcı mevcut değil </string>
+    <string name="mainAutoReplyLabel">Otomatik yanıt metni </string>
+    <string name="mainAutoReplySwitchOffLabel">Otomatik yanıt KAPALI </string>
+    <string name="mainAutoReplySwitchOnLabel">Otomatik yanıt AÇIK </string>
+    <string name="mainAutoReplyEditBtnTooltip">Otomatik yanıt metnini düzenlemek için tıklayın </string>
+    <string name="decline">Reddet </string>
+    <string name="accept">Onayla </string>
+    <string name="sure">Eminim</string>
+    <string name="retry">Yeniden dene</string>
+    <string name="permission_dialog_title">İzin Gerekli</string>
+    <string name="permission_dialog_msg">Bu uygulamanın çalışması için Bildirim Erişimi izinleri gerekir</string>
+    <string name="permission_dialog_denied_title">İzin reddedildi</string>
+    <string name="permission_dialog_denied_msg">Bu izin olmadan uygulama bildirimlere otomatik yanıt veremez. İzni reddetmek istediğinizden emin misiniz?</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">Uygulamalar için etkinleştirin</string>
+    <string name="enable_auto_reply_switch_msg">Önce Otomatik Yanıt Anahtarını Etkinleştirin</string>
+    <string name="error_atleast_single_app_must_be_selected">Hata: En az bir uygulama seçin</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Grup sohbetleri için otomatik yanıt</string>
+    <string name="group_reply_on_info_message">Grup sohbetleri için otomatik yanıt etkinleştirildi</string>
+    <string name="group_reply_off_info_message">Grup sohbetleri için otomatik yanıt devre dışı bırakıldı</string>
+    <string name="time_picker_title">Yanıt sıklığı (BETA)</string>
+    <string name="time_picker_sub_title_default">Tüm mesajlara kontrolsüz yanıt verin</string>
+    <string name="time_picker_sub_title">Her kişi veya grup için yalnızca %1$d günde bir yanıt verin</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Yanıtlar arasındaki zaman gecikmesini düzenlemek için tıklayın</string>
+    <string name="app_version">v%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">Kaydet</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u> Topluluktaki şablonları görüntüleyin ve sizinkini de paylaşın ➚ </u></string>
+    <string name="share">Paylaş</string>
+    <string name="watomatic_subreddit_label"><u>Haydi tartışalım\nr/watomatic</u></string>
+    <string name="watomatic_whatsnew_label">Neler Yeni?</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">Cevaplanan mesajlar için bildirim göster</string>
+    <string name="preference_category_general_label">Genel Ayarlar</string>
+    <string name="preference_category_notifications_label">Bildirimler</string>
+    <string name="preference_category_troubleshooting_label">Sorun Giderme</string>
+    <string name="enable_auto_start_label">Otomatik Başlatmayı Aktif Et</string>
+    <string name="add_attribution_label">Atıf Ekle</string>
+    <string name="enabled_apps_title">Etkin Uygulamalar</string>
+    <string name="always_on_notification">Her zaman açık bildirimi</string>
+    <string name="display_persistent_notification_summary">Watomatic\'in sistem tarafından durdurulmadığından emin olmak için kalıcı bir bildirim görüntüleyin</string>
+    <string name="enable_auto_start_summary">Bazı cihazlarda, cihaz ayarlarından Watomatic için Otomatik başlatmayı manuel olarak etkinleştirmeniz gerekebilir</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">Uygulama Dili</string>
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">Ne düşünüyorsunuz?</string>
+    <string name="app_rating_dialog_msg">Uygulama hakkında ne düşündüğünüzü merak ediyoruz. Aşağıdaki yıldızlara tıklayarak oylayabilirsiniz. </string>
+    <string name="app_rating_dialog_rate_button_title">Oylayın! </string>
+    <string name="app_rating_dialog_rate_later_title">Belki sonra</string>
+    <string name="app_rating_goto_store_dialog_title">Mutluyuz! </string>
+    <string name="app_rating_pitch">Uygulama ücretsiz, reklamsız, takip edilemez, açık kaynak kodlu  ve  sizin ve benim gibi katkıda bulunanlarca oluşturulmuştur. Görüşleriniz bizim için değerlidir. </string>
+    <string name="app_rating_goto_store_dialog_button1_title">İlgilenmiyorum </string>
+    <string name="app_rating_goto_store_dialog_button2_title">Devam et </string>
+    <string name="app_rating_feedback_dialog_title">Bizi arayın </string>
+    <string name="app_rating_feedback_dialog_msg">Nasıl geliştirebileceğimiz hakkında bizi bilgilendirin.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">E-posta gönderin </string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">Telegram </string>
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">Otomatik Başlatma İzni</string>
+    <string name="running_in_the_background">Arka planda çalıştır</string>
+    <string name="auto_start_permission_dialog_message">Watomatic\'in cihaz yeniden başlatıldığında başlamasına izin vermek için cihaz ayarlarında \"Otomatik Başlatma\" iznini etkinleştirin.</string>
+    <string name="device_based_settings_message">Not: Ayarlar cihazınıza göre değişebilir veya kullanılamayabilir</string>
+    <string name="setting_not_available_for_device">Bu ayar cihazınız için mevcut değil veya gerekli olmayabilir.</string>
+    <string name="enable_auto_start_setting">Devam Et</string>
+    <string name="decline_auto_start_setting">İptal</string>
+    <string name="app_not_installed_text">Yüklü değil</string>
+    <string name="contact_based_reply">Kişi bazlı yanıtlar</string>
+    <string name="contact_reply_type">... cevap ver</string>
+    <string name="blacklist">Seçilen kişiler dışındaki herkes</string>
+    <string name="whitelist">Seçilen kişiler dışında hiç kimse</string>
+    <string name="enable_contact_based_reply">Kişi bazlı yanıtları etkinleştir</string>
+    <string name="contact_selector">Kişi seçicisi</string>
+    <string name="select_all">Tümünü seç</string>
+    <string name="select_none">Hiçbirini seçme</string>
+    <string name="contact_permission_dialog_msg">İsimleri filtrelemek ve bu özelliği etkinleştirmek için kişi okuma erişimi gereklidir. Devam etmek istiyor musunuz?</string>
+    <string name="contact_permission_dialog_proceed">İlerle</string>
+    <string name="contact_permission_dialog_cancel">İptal</string>
+    <string name="undo">Geri Al</string>
+    <string name="all_contacts_selected">Tüm bağlantılar seçildi</string>
+    <string name="all_contacts_unselected">Tüm kişilerin seçimi kaldırıldı</string>
+    <string name="donations_activity_title">Bağış</string>
+    <string name="donations_data_fetch_error">En son veriler alınamadı</string>
+    <string name="donations_goal_title_0">Mücadele</string>
+    <string name="donations_goal_0">Her kuruş programın hayatta kalmasına yardımcı olmak için önemlidir</string>
+    <string name="donations_goal_title_20">Sadece hayatta kalmak</string>
+    <string name="donations_goal_20">Günlük bakım ve kritik düzeltmeleri destekler</string>
+    <string name="donations_goal_title_30">Kararlı</string>
+    <string name="donations_goal_30">Daha hızlı hata düzeltmeleri ve güncellik</string>
+    <string name="donations_goal_title_70">Yavaş ve istikrarlı ilerleme</string>
+    <string name="donations_goal_70">Küçük özellikler ve arayüz iyileştirmeleri</string>
+    <string name="donations_goal_title_100">Destek modu</string>
+    <string name="donations_goal_100">Birçok gelişmiş özelliğe sahip güçlü bir otomatik yanıt uygulaması yapmamıza yardımcı olun</string>
+    <string name="donation_progress_label">Aylık hedefin</string>
+    <string name="add_custom_contact">Özel kişi adı ekleyin</string>
+    <string name="contact_permission_suggestion_dialog_msg">Yanıtları kişi adlarına göre filtrelemek için kişi okuma erişimi gereklidir. Erişim etkinleştirilmezse, yalnızca manuel olarak girilen adlara izin verilir. Etkinleştirmek istiyor musunuz?</string>
+    <string name="contact_permission_dialog_enable_permission">Kişi iznini etkinleştir</string>
+    <string name="contact_permission_dialog_not_now">Şimdi değil</string>
+    <string name="contact_permission_dialog_title">Kişi okuma erişimi</string>
+    <string name="error_name_cannot_be_duplicate">Bu isim daha önce alınmış</string>
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>

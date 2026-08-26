@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">Quant a</string>
+    <string name="settings">Configuració</string>
+    <string name="privacy_policy_label">Política de privadesa</string>
+    <string name="service_name">Watomatic: Accés a missatges</string>
+    <string name="mainAutoReplyTextPlaceholder">(Resposta personalitzada)</string>
+    <string name="auto_reply_default_message">Resposta automàtica\n⚠️ Usuari no disponible</string>
+    <string name="ai_auto_reply_default_message">Respostes IA habilitades\nEls missatges s\'administren intel·ligentment per la IA</string>
+    <string name="mainAutoReplyLabel">Text de resposta automàtica</string>
+    <string name="mainAutoReplySwitchOffLabel">Resposta automàtica DESACTIVADA</string>
+    <string name="mainAutoReplySwitchOnLabel">Resposta automàtica ACTIVADA</string>
+    <string name="mainAutoReplyEditBtnTooltip">Toqueu per editar el text de la resposta automàtica</string>
+    <string name="to_help_you_leave_whatsapp">Configura la resposta automàtica per ajudar-vos a deixar les aplicacions de missatgeria</string>
+    <string name="decline">Rebutja</string>
+    <string name="accept">Accepta</string>
+    <string name="sure">D\'acord</string>
+    <string name="retry">Torna-ho a provar</string>
+    <string name="permission_dialog_title">Permís necessari</string>
+    <string name="permission_dialog_msg">Aquesta aplicació necessita accés a les notificacions per funcionar.</string>
+    <string name="permission_dialog_denied_title">S\'ha rebutjat el permís</string>
+    <string name="permission_dialog_denied_msg">Sense aquest permís, l\'aplicació no podrà respondre automàticament les notificacions. Voleu continuar?</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">Activa per a les aplicacions</string>
+    <string name="enable_auto_reply_switch_msg">Activeu primer la Resposta automàtica.</string>
+    <string name="error_atleast_single_app_must_be_selected">Error: Seleccioneu almenys una aplicació</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Habilita als xats grupals</string>
+    <string name="group_reply_on_info_message">S\'ha activat la resposta automàtica als xats grupals</string>
+    <string name="group_reply_off_info_message">S\'ha desactivat la resposta automàtica als xats grupals</string>
+    <string name="time_picker_title">Freqüència de resposta automàtica (BETA)</string>
+    <string name="time_picker_sub_title_default">Respon a tots els missatges sense límit</string>
+    <string name="time_picker_sub_title">Respon només un cop cada %1$d dies per persona o grup</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Premeu per editar el temps d\'espera entre respostes</string>
+    <string name="app_version">v%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">Desa</string>
+    <string name="tip_view_messages_from_fellow_users">🦩<u>Mostra i comparteix plantilles amb la comunitat➚</u></string>
+    <string name="append_watomatic_arribution_checkbox_label">Permet a l\'Atomatic difondre el seu missatge</string>
+    <string name="sent_using_Watomatic">Enviat amb atomatic.app</string>
+    <string name="share_app_text">Estic utilitzant l\'Atomatic per a desintoxicar-me d\'aplicacions de missatgeria. Prova-ho a: watomatic.app</string>
+    <string name="share">Comparteix</string>
+    <string name="share_subject">Atomatic: Resposta automàtica en aplicacions de missatgeria</string>
+    <string name="watomatic_community_label"><u>Comunitat</u></string>
+    <string name="watomatic_subreddit_label"><u>Discussió\nr/watomatic</u></string>
+    <string name="watomatic_whatsnew_label">Novetats</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">Mostra notificacions dels missatges que s\'han respost</string>
+    <string name="preference_category_general_label">Configuració general</string>
+    <string name="preference_category_notifications_label">Notificacions</string>
+    <string name="preference_category_troubleshooting_label">Resolució de problemes</string>
+    <string name="enable_auto_start_label">Habilita l\'inici automàtic</string>
+    <string name="add_attribution_label">Afegeix una atribució</string>
+    <string name="enabled_apps_title">Aplicacions habilitades</string>
+    <string name="always_on_notification">Mostra sempre les notificacions</string>
+    <string name="display_persistent_notification_summary">Mostra una notificació persistent per evitar que el Watomatic sigui tancat pel sistema</string>
+    <string name="enable_auto_start_summary">Alguns dispositius necessiten que activeu de forma manual l\'inici automàtic per al Watomatic des del panel de configuració del dispositiu</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">Idioma</string>
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">Què en penseu?</string>
+    <string name="app_rating_dialog_msg">Puntueu l\'aplicació amb els estels de sota per conèixer la vostra valoració.</string>
+    <string name="app_rating_dialog_rate_button_title">Puntueu-nos!</string>
+    <string name="app_rating_dialog_rate_later_title">Potser més tard</string>
+    <string name="app_rating_goto_store_dialog_title">Moltes gràcies!</string>
+    <string name="app_rating_goto_store_dialog_msg">Compartiu la puntuació de la nostra aplicació a Google Play Store tocant «Continua»!</string>
+    <string name="app_rating_pitch">El Watomatic és gratuït, sense publicitat ni rastrejadors, de codi obert i mantingut per gent com ara vós o jo.
+        La vostra opinió és l\'únic que ens mou a continuar.</string>
+    <string name="app_rating_goto_store_dialog_button1_title">No m’interessa</string>
+    <string name="app_rating_goto_store_dialog_button2_title">Continua</string>
+    <string name="app_rating_feedback_dialog_title">Contacteu-nos</string>
+    <string name="app_rating_feedback_dialog_msg">Digueu-nos com podem millorar.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">Correu-e</string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">Telegram</string>
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">Permís d\'inici automàtic</string>
+    <string name="running_in_the_background">Execució en rerefons</string>
+    <string name="auto_start_permission_dialog_message">Habiliteu el permís \"Inicia automàticament\" a la configuració del dispositiu perquè el Watomatic s\'iniciï en arrencar.</string>
+    <string name="device_based_settings_message">Nota: Aquesta opció pot variar o no estar disponible al vostre dispositiu</string>
+    <string name="setting_not_available_for_device">Aquesta opció no està disponible o no és necessària al vostre dispositiu.</string>
+    <string name="enable_auto_start_setting">Continua</string>
+    <string name="decline_auto_start_setting">Cancel·la</string>
+    <string name="app_not_installed_text">Sense instal·lar</string>
+    <string name="contact_based_reply">Respostes basades en contactes</string>
+    <string name="contact_reply_type">Respon a</string>
+    <string name="blacklist">Tothom excepte els contactes seleccionats</string>
+    <string name="whitelist">Cap contacte excepte els seleccionats</string>
+    <string name="enable_contact_based_reply">Habilita les respostes basades en contactes</string>
+    <string name="select_contacts">Selecció de contactes</string>
+    <string name="contact_selector">Selecció de contactes</string>
+    <string name="select_all">Selecciona-ho tot</string>
+    <string name="select_none">No en seleccionis cap</string>
+    <string name="search">Cerca</string>
+    <string name="contact_permission_dialog_msg">L\'accés a contactes és necessari per habilitar la característica de filtre de contactes. Voleu continuar?</string>
+    <string name="contact_permission_dialog_proceed">Continua</string>
+    <string name="contact_permission_dialog_cancel">Cancel·la</string>
+    <string name="undo">Desfés</string>
+    <string name="all_contacts_selected">S\'han seleccionat tots els contactes</string>
+    <string name="all_contacts_unselected">No s\'ha seleccionat cap contacte</string>
+    <string name="donations_activity_title">Donacions</string>
+    <string name="donations_data_fetch_error">No s\'ha pogut recuperar les dades més recents</string>
+    <string name="donations_goal_title_0">Lluitant</string>
+    <string name="donations_goal_0">Cada cèntim compta per sobreviure</string>
+    <string name="donations_goal_title_20">Simplement sobrevivint</string>
+    <string name="donations_goal_20">Suport de manteniment diari i solucions crítiques</string>
+    <string name="donations_goal_title_30">Estable</string>
+    <string name="donations_goal_30">Correcció d\'errors més ràpida i manteniment actualitzat</string>
+    <string name="donations_goal_title_70">Progrés lent i constant</string>
+    <string name="donations_goal_70">Característiques menors i millores de la interfície</string>
+    <string name="donations_goal_title_100">Mode d\'optimització</string>
+    <string name="donations_goal_100">Ajudeu-nos a convertir el Watomatic en l\'aplicació de resposta automàtica més avançada</string>
+    <string name="donation_progress_label">de l\'objectiu mensual</string>
+    <string name="add_custom_contact">Afegeix un nom de contacte personalitzat</string>
+    <string name="contact_permission_suggestion_dialog_msg">Es requereix l\'accés als contactes per crear filtres de resposta basats en aquest criteri. Si no permeteu l\'accés, només podreu crear filtres inserint la informació manualment. Voleu habilitar-ho?</string>
+    <string name="contact_permission_dialog_enable_permission">Permet l\'accés a contactes</string>
+    <string name="contact_permission_dialog_not_now">Ara no</string>
+    <string name="contact_permission_dialog_title">Accés als contactes</string>
+    <string name="delete">Suprimeix</string>
+    <string name="decrease_frequency">Redueix la freqüència</string>
+    <string name="increase_frequency">Augmenta la freqüència</string>
+    <string name="current_donation_progress">Estat actual de la donació</string>
+    <string name="error_name_cannot_be_blank">El nom no pot estar en blanc</string>
+    <string name="error_name_cannot_be_duplicate">Aquest nom ja existeix</string>
+    <string name="post_notification_permission_snackbar_text">Aquesta aplicació requereix permisos de notificacions. Habiliteu-los a la configuració.</string>
+    <string name="post_notification_permission_snackbar_setting">Configuració</string>
+    <string name="pref_enable_openai_replies_title">Activa la resposta automàtica de la IA</string>
+    <string name="pref_enable_openai_replies_summary">Utilitzeu la IA per a respondre de forma intel·ligent</string>
+    <string name="pref_openai_api_key_title">Clau API</string>
+    <string name="pref_openai_api_key_summary_not_set">Clau API no establerta</string>
+    <string name="pref_openai_api_key_summary_set">Clau API configurada</string>
+    <string name="pref_openai_api_key_dialog_title">Inseriu la vostra clau API</string>
+    <string name="pref_openai_api_source_title">Proveïdor API</string>
+    <string name="pref_openai_custom_api_url_title">URL personalitzat API</string>
+    <string name="pref_openai_custom_api_url_summary">Inseriu el vostre URL personalitzat de la clau API</string>
+    <string name="pref_openai_custom_api_url_dialog_title">URL personalitzat API</string>
+    <string name="set_custom_api_url">Configuració d\'API URL personalitzat</string>
+    <string name="pref_openai_model_title">Model d\'IA</string>
+    <string name="pref_openai_model_summary_default">Trieu el model preferit de xat</string>
+    <string name="pref_openai_model_dialog_title">Trieu el model d\'IA</string>
+    <string name="pref_openai_model_loading">S\'estan carregant els models...</string>
+    <string name="pref_openai_model_error">No s\'han carregat els models. Verifiqueu la connexió de la xarxa o la clau API.</string>
+    <string name="pref_openai_model_not_set">Cap model seleccionat</string>
+    <string name="pref_openai_model_no_compatible_found">No s\'han trobat models compatibles. Verifiqueu la clau API o proveu més tard.</string>
+    <string name="pref_category_openai_status_title">Estat del servei d\'IA</string>
+    <string name="pref_openai_status_alert_title">Alerta IA</string>
+    <string name="pref_openai_status_ok_summary">Cap incidència detectada.</string>
+    <string name="pref_openai_error_dismiss_confirmation">S\'ha descartat l\'alerta. Es tornarà a mostrar si l\'error persisteix.</string>
+    <!-- Generative AI -->
+    <string name="generative_ai">IA generativa</string>
+    <string name="enable_generative_ai">Activa la IA generativa</string>
+    <string name="custom_prompt">Ordre personalitzada</string>
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <string name="auto_reply_text">Text de resposta automàtica</string>
+    <string name="filters">Filtres</string>
+    <!-- AI Reply Text -->
+    <string name="ai_reply_text">Resposta IA: «Hola! No estic disponible. Et contactaré tan aviat com sigui possible» (OpenAI)</string>
+    <!-- Toggle and Buttons -->
+    <string name="auto_replies_enabled">Respostes automàtiques habilitades</string>
+    <string name="edit">Edita</string>
+    <!-- Filter Items -->
+    <string name="contacts">Contactes</string>
+    <string name="all_contacts">Tots els contactes</string>
+    <string name="no_contacts">Cap seleccionat</string>
+    <string name="some_contacts">Contactes seleccionats</string>
+    <string name="message_type">Tipus de missatge</string>
+    <string name="direct_messages">Només missatges directes</string>
+    <string name="all_messages">Tots Els Missatges</string>
+    <string name="apps">Aplicacions</string>
+    <string name="apps_enabled_count">%1$d/%2$d aplicacions habilitades</string>
+    <string name="ten_minutes">10 minuts</string>
+    <!-- Cooldown units -->
+    <string name="minutes">minuts</string>
+    <string name="hours">hores</string>
+    <string name="minute">minut</string>
+    <string name="hour">hora</string>
+    <string name="reset_timer">Reinicia</string>
+    <string name="error_invalid_url">Inseriu un URL vàlid que comenci per http;// o https://</string>
+    <string name="use_an_llm_like_openai_to_generate_smart_responses">Utilitzeu un LLM com ara OpenAI per a les respostes.</string>
+    <string name="ai_provider_llm">Proveïdora IA (LLM)</string>
+    <string name="openai">OpenAI</string>
+    <!-- Authentication -->
+    <string name="error_email_required">Necessari correu-e</string>
+    <string name="error_invalid_email">Adreça de correu-e no vàlida</string>
+    <string name="error_password_required">Es requereix una contrasenya</string>
+    <string name="error_password_too_short">La contrasenya ha de tenir almenys 6 caràcters</string>
+    <string name="welcome_message">Us donem la benvinguda a l\'Atomatic</string>
+    <string name="login">Inicia la sessió</string>
+    <!-- Contact-based replies UI -->
+    <string name="contact_based_replies">Respostes basades en contactes</string>
+    <string name="reply_to_mode">Mode de resposta</string>
+    <string name="reply_only_selected">Només els contactes seleccionats</string>
+    <string name="reply_everyone_except_selected">Tothom excepte els contactes seleccionats</string>
+    <string name="contact_filter_disabled">Inhabilitat</string>
+    <string name="contact_filter_enabled_whitelist">Només els seleccionats (%1$d)</string>
+    <string name="contact_filter_enabled_blacklist">Tothom excepte els seleccionats (%1$d)</string>
+</resources>

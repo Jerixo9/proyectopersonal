@@ -1,0 +1,46 @@
+package com.parishod.watomatic.activity.contactselector
+
+import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
+import com.parishod.watomatic.R
+import com.parishod.watomatic.activity.BaseActivity
+import com.parishod.watomatic.databinding.ActivityContactSelectorBinding
+import com.parishod.watomatic.fragment.ContactSelectorFragment
+import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+
+class ContactSelectorActivity : BaseActivity() {
+    private lateinit var contactSelectorFragment: ContactSelectorFragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val binding = ActivityContactSelectorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val toolbar = binding.toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = getString(R.string.contact_selector)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        contactSelectorFragment = supportFragmentManager.findFragmentById(R.id.contact_selector_layout)
+                as? ContactSelectorFragment ?: return
+
+        ViewModelProvider(this).get(SwipeToKillAppDetectViewModel::class.java)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.contactSelectorRoot) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
+    }
+
+}

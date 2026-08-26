@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">À propos de Watomatic</string>
+    <string name="settings">Paramètres</string>
+    <string name="privacy_policy_label">Politique de confidentialité</string>
+    <string name="service_name">Nom du service</string>
+    <string name="mainAutoReplyTextPlaceholder">(Réponse personnalisée)</string>
+    <string name="auto_reply_default_message">Réponse automatique\n⚠️ Utilisateur non joignable</string>
+    <string name="mainAutoReplyLabel">Texte de réponse automatique</string>
+    <string name="mainAutoReplySwitchOffLabel">Désactiver la réponse automatique</string>
+    <string name="mainAutoReplySwitchOnLabel">Activer la réponse automatique</string>
+    <string name="mainAutoReplyEditBtnTooltip">Cliquer pour modifier</string>
+    <string name="decline">refuser</string>
+    <string name="accept">accepter</string>
+    <string name="sure">Je suis sûr·e</string>
+    <string name="retry">essayer de nouveau</string>
+    <string name="permission_dialog_title">Gestion des permissions</string>
+    <string name="permission_dialog_msg">Cette application a besoin des permissions suivantes pour fonctionner.</string>
+    <string name="permission_dialog_denied_title">Gestion des permissions</string>
+    <string name="permission_dialog_denied_msg">Sans ces permissions, il est impossible de faire une réponse automatique. Êtes-vous sûr·e de vouloir les refuser ?</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">activer pour les applications</string>
+    <string name="enable_auto_reply_switch_msg">Activer la réponse automatique.</string>
+    <string name="error_atleast_single_app_must_be_selected">Erreur: Sélectionnez au moins une application</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Réponse automatique pour les conversations de groupe</string>
+    <string name="group_reply_on_info_message">Réponse automatique pour les conversations de groupe activée</string>
+    <string name="group_reply_off_info_message">Réponse automatique pour les conversations de groupe désactivée</string>
+    <string name="time_picker_title">Fréquence d\'envoi (BETA)</string>
+    <string name="time_picker_sub_title_default">Répondre sans limite à tous les messages</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Cliquer pour modifier la fréquence des réponses.</string>
+    <string name="app_version">v%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">sauvegarder</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u>Voir les messages proposés par les autres utilisateurs ➚</u></string>
+    <string name="share">Partager</string>
+    <string name="watomatic_subreddit_label"><u>Parlons de\nr/watomatic</u></string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">Montrer la notification pour les messages répondus</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">Langue de l\'application</string>
+    <!-- App Rating Dialog -->
+    <!--Autostart Permission Dialog-->
+    <string name="donations_activity_title">Faire un don</string>
+    <string name="donations_data_fetch_error">Impossible de récupérer les dernières données</string>
+    <string name="donations_goal_title_0">En difficulté</string>
+    <string name="donations_goal_0">Chaque centime compte pour l\'aider à survivre</string>
+    <string name="donations_goal_title_20">Survivre seulement</string>
+    <string name="donations_goal_20">Soutient la maintenance quotidienne et les corrections critiques</string>
+    <string name="donations_goal_title_30">Stable</string>
+    <string name="donations_goal_30">Corrections de bugs plus rapides et actualisations</string>
+    <string name="donations_goal_title_70">Progression lente et régulière</string>
+    <string name="donations_goal_70">Fonctionnalités mineures et améliorations de l\'interface</string>
+    <string name="donations_goal_title_100">Mode boost</string>
+    <string name="donations_goal_100">Aidez-nous à en faire une application de réponse automatique puissante avec de nombreuses fonctionnalités avancées</string>
+    <string name="donation_progress_label">d\'objectif mensuel</string>
+    <string name="add_custom_contact">Ajouter un nom de contact personnalisé</string>
+    <string name="contact_permission_suggestion_dialog_msg">L\'accès aux contacts en lecture est requis afin de filtrer les réponses par nom de contact. Si l\'accès n\'est pas activé, seuls les noms saisis manuellement seront utilisables. Voulez-vous l\'activer?</string>
+    <string name="contact_permission_dialog_enable_permission">Autoriser l\'accès aux contacts</string>
+    <string name="contact_permission_dialog_not_now">Pas maintenant</string>
+    <string name="contact_permission_dialog_title">Accès aux contacts en lecture</string>
+    <string name="delete">Supprimer</string>
+    <string name="decrease_frequency">Diminuer la fréquence</string>
+    <string name="increase_frequency">Augmenter la fréquence</string>
+    <string name="current_donation_progress">Montant actuel des dons</string>
+    <string name="error_name_cannot_be_blank">Le nom ne peut pas être vide</string>
+    <string name="error_name_cannot_be_duplicate">Le nom est déjà présent</string>
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">Tietoja</string>
+    <string name="settings">Asetukset</string>
+    <string name="privacy_policy_label">Tietosuojakäytännöt</string>
+    <string name="service_name">Saapuvien viestien ilmoitusten tarkkailija</string>
+    <string name="mainAutoReplyTextPlaceholder">(Mukautettu vastaus)</string>
+    <string name="auto_reply_default_message">Automaattinen vastaus\n⚠️ Käyttäjä ei ole tavoitettavissa</string>
+    <string name="mainAutoReplyLabel">Automaattisen vastauksen teksti</string>
+    <string name="mainAutoReplySwitchOffLabel">Automaattinen vastaus pois käytöstä</string>
+    <string name="mainAutoReplySwitchOnLabel">Automaattinen vastaus käytössä</string>
+    <string name="mainAutoReplyEditBtnTooltip">Napsauta muokataksesi automaattisen vastauksen tekstiä</string>
+    <string name="decline">Kieltäydy</string>
+    <string name="accept">Hyväksy</string>
+    <string name="sure">Olen varma</string>
+    <string name="retry">Yritä uudelleen</string>
+    <string name="permission_dialog_title">Käyttöoikeus tarvitaan</string>
+    <string name="permission_dialog_msg">Tämä sovellus vaatii ilmoitusten käyttöoikeudet toimiakseen.</string>
+    <string name="permission_dialog_denied_title">Lupa evätty</string>
+    <string name="permission_dialog_denied_msg">Ilman tätä käyttöoikeutta sovellus ei voi vastata automaattisesti ilmoituksiin. Oletko varma, että haluat kieltää käyttöoikeuden?</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">Salli sovelluksille</string>
+    <string name="enable_auto_reply_switch_msg">Ota ensin automaattinen vastaus käyttöön.</string>
+    <string name="error_atleast_single_app_must_be_selected">Virhe: Valitse ainakin yksi sovellus</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Automaattinen vastaus ryhmäkeskusteluihin</string>
+    <string name="group_reply_on_info_message">Automaattinen vastaus ryhmäkeskusteluihin otettu käyttöön</string>
+    <string name="group_reply_off_info_message">Automaattinen vastaus ryhmäkeskusteluihin otettu pois käytöstä</string>
+    <string name="time_picker_title">Vastaustiheys (BETA)</string>
+    <string name="time_picker_sub_title_default">Vastaa kaikkiin viesteihin ilman rajoituksia</string>
+    <string name="time_picker_sub_title">Vastaa vain kerran joka %1$d. päivä joka henkilölle tai ryhmälle</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Napauta muokataksesi vastausten välistä aikaviivettä</string>
+    <string name="app_version">v%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">Tallenna</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u>Näytä yhteisön mallipohjat ja jaa omasi muiden saataville ➚</u></string>
+    <string name="share">Jaa</string>
+    <string name="watomatic_subreddit_label"><u>Keskustele\nr/watomaticista</u></string>
+    <string name="watomatic_whatsnew_label">Mitä uutta?</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">Näytä ilmoitus vastatuille viesteille</string>
+    <string name="preference_category_general_label">Yleiset asetukset</string>
+    <string name="preference_category_notifications_label">Ilmoitukset</string>
+    <string name="preference_category_troubleshooting_label">Vianmääritys</string>
+    <string name="enable_auto_start_label">Salli automaattinen käynnistys</string>
+    <string name="add_attribution_label">Lisää määrite</string>
+    <string name="enabled_apps_title">Sallitut sovellukset</string>
+    <string name="always_on_notification">Ilmoitus aina päällä</string>
+    <string name="display_persistent_notification_summary">Näytä pysyvä ilmoitus varmistaaksesi, ettei järjestelmä lopeta Watomaticia</string>
+    <string name="enable_auto_start_summary">Jotkut laitteet saattavat tarvita ottamaan automattisen käynnistyksen Watomaticille manuaalisesti käyttöön laitteen asetusten kautta</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">Sovelluksen kieli</string>
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">Mitä mieltä olet?</string>
+    <string name="app_rating_dialog_msg">Olemme kiinnostuneita siitä, mitä mieltä olet sovelluksesta. Napauta yllä olevia tähtiä arvioidaksesi sen.</string>
+    <string name="app_rating_dialog_rate_button_title">Arvostele se!</string>
+    <string name="app_rating_dialog_rate_later_title">Ehkä myöhemmin</string>
+    <string name="app_rating_goto_store_dialog_title">Olemme iloisia!</string>
+    <string name="app_rating_pitch">Tämä sovellus on ilmainen, ei mainoksia, ei seurantaa, avointa lähdekoodia ja sen tekevät osallistujat kuten sinä ja minä.
+        Palautteesi on ainoa rohkaisumme.</string>
+    <string name="app_rating_goto_store_dialog_button1_title">En ole kiinnostunut</string>
+    <string name="app_rating_goto_store_dialog_button2_title">Jatka</string>
+    <string name="app_rating_feedback_dialog_title">Ota meihin yhteyttä</string>
+    <string name="app_rating_feedback_dialog_msg">Kerro meille, miten voimme parantaa.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">Lähetä meille sähköpostia</string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">Telegram</string>
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">Automaattisen käynnistyksen käyttölupa</string>
+    <string name="running_in_the_background">Käynnissä taustalla</string>
+    <string name="auto_start_permission_dialog_message">Salli \"automaattinen käynnistys\" -käyttöoikeus laitteen asetuksissa, jotta sallit Watomaticille käynnistyksen laitteen käynnistyessä uudelleen.</string>
+    <string name="device_based_settings_message">Huomaa: Asetukset voivat vaihdella tai eivät ole saatavilla laitteesi perusteella</string>
+    <string name="setting_not_available_for_device">Tämä asetus ei ole saatavilla tai ei saata olla tarpeellinen laitteellesi.</string>
+    <string name="enable_auto_start_setting">Jatka</string>
+    <string name="decline_auto_start_setting">Peruuta</string>
+    <string name="app_not_installed_text">Ei asennettu</string>
+    <string name="contact_based_reply">Yhteystietoihin perustuvat vastaukset</string>
+    <string name="contact_reply_type">Vastaa</string>
+    <string name="blacklist">Kaikki paitsi valitut yhteystiedot</string>
+    <string name="whitelist">Ei kukaan paitsi valitus yhteystiedot</string>
+    <string name="enable_contact_based_reply">Salli yhteystietoihin perustuvat vastaukset</string>
+    <string name="contact_selector">Yhteystiedon valitsin</string>
+    <string name="select_all">Valitse kaikki</string>
+    <string name="select_none">Älä valitse mitään</string>
+    <string name="contact_permission_dialog_msg">Yhteystiedon lukemiseen pääsy vaaditaan, jotta nimiä voidaan suodattaa ja tämä toiminto voidaan ottaa käyttöön. Haluatko jatkaa?</string>
+    <string name="contact_permission_dialog_proceed">Jatka</string>
+    <string name="contact_permission_dialog_cancel">Peruuta</string>
+    <string name="undo">Kumoa</string>
+    <string name="all_contacts_selected">Kaikki yhteystiedot valittu</string>
+    <string name="all_contacts_unselected">Kaikki yhteystiedot valitsematta</string>
+    <string name="donations_activity_title">Lahjoitukset</string>
+    <string name="donations_data_fetch_error">Uusimpien tietojen noutaminen epäonnistui</string>
+    <string name="donations_goal_title_0">Rimpuilee</string>
+    <string name="donations_goal_0">Jokainen sentti auttaa sitä selviytymään</string>
+    <string name="donations_goal_title_20">Vain selviytdytään</string>
+    <string name="donations_goal_20">Tukee päivittäistä ylläpitoa ja kriittisiä korjauksia</string>
+    <string name="donations_goal_title_30">Vakaa</string>
+    <string name="donations_goal_30">Nopeammat bugien korjaukset ja sen pitäminen uutena</string>
+    <string name="donations_goal_title_70">Hidas ja vakaa edistyminen</string>
+    <string name="donations_goal_70">Pieniä ominaisuuksia ja käyttöliittymän parannuksia</string>
+    <string name="donations_goal_title_100">Tehostettu tila</string>
+    <string name="donations_goal_100">Auta meitä tekemään siitä tehokkaan sovelluksen automaattisille vastauksille useilla edistyneillä ominaisuuksilla</string>
+    <string name="donation_progress_label">kuukausittaisesta tavoitteesta</string>
+    <string name="add_custom_contact">Lisää mukautettu yhteystiedon nimi</string>
+    <string name="contact_permission_suggestion_dialog_msg">Yhteystietojen lukemiseen pääsyä tarvitaan, jotta vastauksia voidaan suodattaa yhteystietojen nimien mukaan. Jos tätä pääsyä ei anneta, sallitaan vain käsin kirjoitetut nimet. Haluatko ottaa sen käyttöön?</string>
+    <string name="contact_permission_dialog_enable_permission">Salli yhteystietojen käyttöoikeus</string>
+    <string name="contact_permission_dialog_not_now">Ei nyt</string>
+    <string name="contact_permission_dialog_title">Yhteystietojen lukemisen käyttölupa</string>
+    <string name="delete">Poista</string>
+    <string name="decrease_frequency">Vähennä taajuutta</string>
+    <string name="increase_frequency">Lisää taajuutta</string>
+    <string name="current_donation_progress">Tämänhetkinen lahjoitusten edistyminen</string>
+    <string name="error_name_cannot_be_blank">Nimi ei voi olla tyhjä</string>
+    <string name="error_name_cannot_be_duplicate">Nimi on jo olemassa</string>
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>

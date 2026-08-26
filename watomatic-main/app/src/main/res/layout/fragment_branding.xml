@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fragment.BrandingFragment">
+
+    <!-- Github button -->
+    <ImageButton
+        android:id="@+id/watomaticGithubBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="?android:selectableItemBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_github"
+        android:contentDescription="@string/github" />
+
+    <!-- r/watomatic subreddit button -->
+    <Button
+        android:id="@+id/watomaticSubredditBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="@string/watomatic_community_label"
+        android:textAllCaps="false"
+        android:textColor="?attr/colorControlNormal"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toEndOf="@+id/watomaticGithubBtn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- r/watomatic whatsnew button -->
+    <Button
+        android:id="@+id/whatsNewBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="@string/watomatic_whatsnew_label"
+        android:textAllCaps="false"
+        android:textColor="?attr/colorControlNormal"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toEndOf="@+id/watomaticGithubBtn"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:drawableStart="@drawable/ic_dot" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <!-- App share button -->
+    <ImageButton
+        android:id="@+id/share_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/ic_share"
+        app:layout_constraintStart_toEndOf="@+id/guideline2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/share" />
+
+    <RelativeLayout
+        android:id="@+id/circularProgressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="15dp"
+        app:layout_constraintStart_toEndOf="@+id/guideline2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        >
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:trackThickness="15dp"
+            app:trackColor="#b43041"
+            android:progress="15"
+            app:indicatorColor="#599c0e"
+            app:indicatorSize="32dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="@string/dollar_sign"
+            android:textStyle="bold"
+            />
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

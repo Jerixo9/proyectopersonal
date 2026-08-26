@@ -1,0 +1,845 @@
+package com.parishod.watomatic.fragment;
+
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuProvider;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.parishod.watomatic.BuildConfig;
+import com.parishod.watomatic.service.NotificationService;
+import com.parishod.watomatic.R;
+import com.parishod.watomatic.activity.about.AboutActivity;
+import com.parishod.watomatic.activity.contactselector.ContactSelectorActivity;
+import com.parishod.watomatic.activity.customreplyeditor.CustomReplyEditorActivity;
+import com.parishod.watomatic.activity.main.MainActivity;
+import com.parishod.watomatic.activity.settings.SettingsActivity;
+import com.parishod.watomatic.model.App;
+import com.parishod.watomatic.model.CustomRepliesData;
+import com.parishod.watomatic.model.data.AppItem;
+import com.parishod.watomatic.model.data.CooldownItem;
+import com.parishod.watomatic.model.data.DialogConfig;
+import com.parishod.watomatic.model.data.MessageTypeItem;
+import com.parishod.watomatic.model.enums.DialogType;
+import com.parishod.watomatic.model.interfaces.DialogActionListener;
+import com.parishod.watomatic.model.preferences.PreferencesManager;
+import com.parishod.watomatic.model.utils.Constants;
+import com.parishod.watomatic.model.utils.CustomDialog;
+import com.parishod.watomatic.model.utils.DbUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static android.content.Intent.ACTION_VIEW;
+import static android.content.Intent.CATEGORY_BROWSABLE;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_DEFAULT;
+import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_NON_BROWSER;
+import static android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS;
+import static com.parishod.watomatic.model.utils.Constants.MIN_REPLIES_TO_ASK_APP_RATING;
+
+public class MainFragment extends Fragment implements DialogActionListener {
+
+    private PreferencesManager preferencesManager;
+    private CustomRepliesData customRepliesData;
+
+    private ActivityResultLauncher<Intent> notificationListenerLauncher;
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
+    private MaterialSwitch autoRepliesSwitch;
+    private TextView aiReplyText;
+    private View view;
+    private com.google.android.material.textfield.TextInputEditText etPcServerUrl;
+    private com.google.android.material.button.MaterialButton btnTestPcConnection;
+    private TextView tvPcConnectionStatus;
+
+    private void testPcConnection() {
+        if (tvPcConnectionStatus == null) return;
+        tvPcConnectionStatus.setText("Probando conexión...");
+        tvPcConnectionStatus.setTextColor(0xFF9CA3AF);
+        
+        String url = preferencesManager.getPcServerUrl();
+        com.parishod.watomatic.network.PcServerService.getInstance().sendHeartbeat(url, "com.whatsapp", new com.parishod.watomatic.network.PcServerService.HeartbeatCallback() {
+            @Override
+            public void onSuccess(boolean isOnline) {
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        tvPcConnectionStatus.setText("🟢 Conectado con éxito a la PC");
+                        tvPcConnectionStatus.setTextColor(0xFF10B981);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        tvPcConnectionStatus.setText("🔴 Sin conexión al PC (Verifica IP)");
+                        tvPcConnectionStatus.setTextColor(0xFFEF4444);
+                    });
+                }
+            }
+        });
+    }
+
+    private int gitHubReleaseNotesId = -1;
+    private int selectedCooldownTime = -1;
+    private int initialCooldownTime = -1;
+    private TextView replyCooldownDescription, messageTypeDescription, contactsSelectorDescription;
+    private LinearLayout contactsFilterLL, messagesTypeLL, supportedAppsLL, replyCooldownLL;
+    private TextView enabledAppsCount;
+    private final List<String> communityUrls = Arrays.asList("tg://resolve?domain=WatomaticApp",
+            "https://fosstodon.org/@watomatic",
+            "https://twitter.com/watomatic",
+            "https://www.reddit.com/r/watomatic");
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        notificationListenerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (isListenerEnabled(requireContext(), NotificationService.class)) {
+                        Toast.makeText(requireContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                        preferencesManager.setServicePref(true);
+                    } else {
+                        Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_LONG).show();
+                        preferencesManager.setServicePref(false);
+                    }
+                    setSwitchState();
+                });
+
+        notificationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (!isGranted) {
+                        showPostNotificationPermissionDeniedSnackbar(autoRepliesSwitch);
+                    }
+                });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_main_redesigned, container, false);
+
+        customRepliesData = CustomRepliesData.getInstance(requireContext());
+        preferencesManager = PreferencesManager.getPreferencesInstance(requireContext());
+
+        // Assign Views
+        autoRepliesSwitch = view.findViewById(R.id.switch_auto_replies);
+        bottomNav = view.findViewById(R.id.bottom_nav);
+
+        // PC Server Views
+        etPcServerUrl = view.findViewById(R.id.et_pc_server_url);
+        btnTestPcConnection = view.findViewById(R.id.btn_test_pc_connection);
+        tvPcConnectionStatus = view.findViewById(R.id.tv_pc_connection_status);
+
+        if (etPcServerUrl != null) {
+            etPcServerUrl.setText(preferencesManager.getPcServerUrl());
+            etPcServerUrl.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
+                    if (s != null) {
+                        preferencesManager.setPcServerUrl(s.toString());
+                    }
+                }
+            });
+        }
+
+        if (btnTestPcConnection != null) {
+            btnTestPcConnection.setOnClickListener(v -> testPcConnection());
+        }
+
+        //Filters Layout views
+        contactsSelectorDescription = view.findViewById(R.id.contacts_filter_description);
+        contactsFilterLL = view.findViewById(R.id.filter_contacts);
+        if (contactsFilterLL != null) {
+            contactsFilterLL.setOnClickListener(v -> {
+                startActivity(new Intent(requireActivity(), ContactSelectorActivity.class));
+            });
+        }
+
+        messageTypeDescription = view.findViewById(R.id.message_type_desc);
+        messagesTypeLL = view.findViewById(R.id.filter_message_type);
+        if (messagesTypeLL != null) {
+            messagesTypeLL.setOnClickListener(v -> {
+                showMessageTypeDialog();
+            });
+        }
+
+        supportedAppsLL = view.findViewById(R.id.filter_apps);
+        if (supportedAppsLL != null) {
+            supportedAppsLL.setOnClickListener(v -> {
+                showAppsDialog();
+            });
+        }
+
+        enabledAppsCount = view.findViewById(R.id.enabled_apps_count);
+        if (enabledAppsCount != null) {
+            enabledAppsCount.setText(String.format(getResources().getString(R.string.apps_enabled_count), preferencesManager.getEnabledApps().size(), Constants.SUPPORTED_APPS.size()));
+        }
+
+        replyCooldownDescription = view.findViewById(R.id.reply_cooldown_description);
+        replyCooldownLL = view.findViewById(R.id.filter_reply_cooldown);
+        if (replyCooldownLL != null) {
+            replyCooldownLL.setOnClickListener(v -> {
+                showCooldownDialog();
+            });
+        }
+
+        // Setup Auto-replies switch
+        autoRepliesSwitch.setChecked(preferencesManager.isServiceEnabled());
+        autoRepliesSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !isListenerEnabled(requireContext(), NotificationService.class)) {
+                showPermissionsDialog();
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!isPostNotificationPermissionGranted()) {
+                        checkNotificationPermission();
+                        return;
+                    }
+                }
+                preferencesManager.setServicePref(isChecked);
+                setSwitchState();
+                if (isChecked) {
+                    com.parishod.watomatic.service.HeartbeatWorker.Companion.schedule(requireContext());
+                } else {
+                    com.parishod.watomatic.service.HeartbeatWorker.Companion.cancel(requireContext());
+                }
+            }
+        });
+
+        // Setup Bottom Navigation
+        if (bottomNav != null) {
+            bottomNav.setOnNavigationItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.navigation_atomatic) {
+                    // Already on this screen
+                    return true;
+                } else if (itemId == R.id.navigation_community) {
+                    // Handle community navigation
+                    launchApp(communityUrls, getString(R.string.watomatic_subreddit_url));
+                    return true;
+                } else if (itemId == R.id.navigation_settings) {
+                    // Handle settings navigation
+                    loadSettingsActivity();
+                    return true;
+                }
+                return false;
+            });
+
+            ViewCompat.setOnApplyWindowInsetsListener(bottomNav, new OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+                    return insets.replaceSystemWindowInsets(
+                            insets.getSystemWindowInsetLeft(),
+                            insets.getSystemWindowInsetTop(),
+                            insets.getSystemWindowInsetRight(),
+                            0
+                    );
+                }
+            });
+        }
+
+        // MenuProvider replaces deprecated setHasOptionsMenu/onCreateOptionsMenu/onOptionsItemSelected
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+                // Toolbar menu is inflated by MainActivity; nothing to inflate here.
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.about) {
+                    openAboutActivity();
+                    return true;
+                } else if (item.getItemId() == R.id.setting) {
+                    loadSettingsActivity();
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
+        if (!isPostNotificationPermissionGranted()) {
+            checkNotificationPermission();
+        }
+
+        return view;
+    }
+
+    private void launchApp(List<String> urls, String fallbackUrl) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            launchAppLegacy(urls, fallbackUrl);
+            return;
+        }
+        boolean isLaunched = false;
+        for (String eachReleaseUrl : urls) {
+            if (isLaunched) {
+                break;
+            }
+            try {
+                // In order for this intent to be invoked, the system must directly launch a non-browser app.
+                // Ref: https://developer.android.com/training/package-visibility/use-cases#avoid-a-disambiguation-dialog
+                Intent intent = new Intent(ACTION_VIEW, Uri.parse(eachReleaseUrl))
+                        .setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_REQUIRE_NON_BROWSER |
+                                FLAG_ACTIVITY_REQUIRE_DEFAULT);
+                startActivity(intent);
+                isLaunched = true;
+            } catch (ActivityNotFoundException e) {
+                // This code executes in one of the following cases:
+                // 1. Only browser apps can handle the intent.
+                // 2. The user has set a browser app as the default app.
+                // 3. The user hasn't set any app as the default for handling this URL.
+                isLaunched = false;
+            }
+        }
+        if (!isLaunched) { // Open Github latest release url in browser if everything else fails
+            startActivity(new Intent(ACTION_VIEW).setData(Uri.parse(fallbackUrl)));
+        }
+    }
+
+    private void launchAppLegacy(List<String> urls, String fallbackUrl) {
+        boolean isLaunched = false;
+        for (String url : urls) {
+            Intent intent = new Intent(ACTION_VIEW, Uri.parse(url));
+            List<ResolveInfo> list = getActivity() != null ?
+                    getActivity().getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY) :
+                    null;
+            List<ResolveInfo> possibleBrowserIntents = getActivity() != null ?
+                    getActivity().getPackageManager()
+                            .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), PackageManager.MATCH_DEFAULT_ONLY) :
+                    null;
+
+            Set<String> excludeIntents = new HashSet<>();
+            if (possibleBrowserIntents != null) {
+                for (ResolveInfo eachPossibleBrowserIntent : possibleBrowserIntents) {
+                    excludeIntents.add(eachPossibleBrowserIntent.activityInfo.name);
+                }
+            }
+
+            //Check for non browser application
+            if (list != null) {
+                for (ResolveInfo resolveInfo : list) {
+                    if (!excludeIntents.contains(resolveInfo.activityInfo.name)) {
+                        intent.setPackage(resolveInfo.activityInfo.packageName);
+                        startActivity(intent);
+                        isLaunched = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isLaunched) {
+                break;
+            }
+        }
+        if (!isLaunched) { // Open Github latest release url in browser if everything else fails
+            startActivity(new Intent(ACTION_VIEW).setData(Uri.parse(fallbackUrl)));
+        }
+    }
+
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private boolean isPostNotificationPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    private void showPostNotificationPermissionDeniedSnackbar(View view) {
+        Snackbar.make(view, requireActivity().getResources().getString(R.string.post_notification_permission_snackbar_text), Snackbar.LENGTH_INDEFINITE)
+                .setAction(requireActivity().getResources().getString(R.string.post_notification_permission_snackbar_setting), view1 -> {
+                    // Open app settings
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", view1.getContext().getPackageName(), null);
+                    intent.setData(uri);
+                    view1.getContext().startActivity(intent);
+                }).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(bottomNav != null){
+            bottomNav.setSelectedItemId(R.id.navigation_atomatic);
+        }
+        //If user directly goes to Settings and removes notifications permission
+        //when app is launched check for permission and set appropriate app state
+        if (!isListenerEnabled(requireContext(), NotificationService.class)) {
+            preferencesManager.setServicePref(false);
+        }
+
+        setSwitchState();
+
+        // Set user auto reply text
+        aiReplyText.setText(customRepliesData.getTextToSendOrElse());
+
+        updateContactsSelectorState();
+        updateMessageType();
+        updateCooldownFilterDisplay();
+        showAppRatingPopup();
+    }
+
+    private void updateContactsSelectorState(){
+        boolean enabled = preferencesManager.isContactReplyEnabled();
+        if(!enabled){
+            contactsSelectorDescription.setText(R.string.contact_filter_disabled);
+            return;
+        }
+        int count = preferencesManager.getReplyToNames().size() + preferencesManager.getCustomReplyNames().size();
+        boolean isBlacklist = preferencesManager.isContactReplyBlacklistMode();
+        if(isBlacklist){
+            contactsSelectorDescription.setText(getString(R.string.contact_filter_enabled_blacklist, count));
+        }else{
+            contactsSelectorDescription.setText(getString(R.string.contact_filter_enabled_whitelist, count));
+        }
+    }
+
+    private void updateMessageType(){
+        if(preferencesManager.isGroupReplyEnabled()){
+            messageTypeDescription.setText(R.string.all_messages);
+        }else{
+            messageTypeDescription.setText(R.string.direct_messages);
+        }
+    }
+
+    private void updateCooldownFilterDisplay() {
+        long cooldownInMillis = preferencesManager.getAutoReplyDelay();
+        long minutes = cooldownInMillis / (60 * 1000);
+        if (minutes == 0) {
+            replyCooldownDescription.setText(R.string.no_cooldown);
+            return;
+        }
+        long hours = minutes / 60;
+        minutes = minutes % 60;
+
+        StringBuilder cooldownText = new StringBuilder();
+        if (hours > 0) {
+            cooldownText.append(hours).append(" ").append(getResources().getString(hours > 1 ? R.string.hours : R.string.hour)).append(" ");
+        }
+        if (minutes > 0) {
+            cooldownText.append(minutes).append(" ").append(getResources().getString(minutes > 1 ? R.string.minutes : R.string.minute));
+        }
+        replyCooldownDescription.setText(cooldownText.toString().trim());
+    }
+
+    private void showAppRatingPopup() {
+        boolean isFromStore = isAppInstalledFromStore(requireActivity());
+        String status = preferencesManager.getPlayStoreRatingStatus();
+        long ratingLastTime = preferencesManager.getPlayStoreRatingLastTime();
+        if (isFromStore && !status.equals("Not Interested") && !status.equals("DONE") && ((System.currentTimeMillis() - ratingLastTime) > (10 * 24 * 60 * 60 * 1000L))) {
+            if (isAppUsedSufficientlyToAskRating()) {
+                CustomDialog customDialog = new CustomDialog(requireActivity());
+                customDialog.showAppLocalRatingDialog(v -> showFeedbackPopup((int) v.getTag()));
+                preferencesManager.setPlayStoreRatingLastTime(System.currentTimeMillis());
+            }
+        }
+    }
+
+    //REF: https://stackoverflow.com/questions/37539949/detect-if-an-app-is-installed-from-play-store
+    public static boolean isAppInstalledFromStore(Context context) {
+        // A list with valid installers package name
+        List<String> validInstallers = new ArrayList<>(Arrays.asList("com.android.vending", "com.google.android.feedback"));
+
+        try {
+            final String installer;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                installer = context.getPackageManager()
+                        .getInstallSourceInfo(context.getPackageName())
+                        .getInstallingPackageName();
+            } else {
+                installer = context.getPackageManager()
+                        .getInstallerPackageName(context.getPackageName());
+            }
+
+            // true if your app has been downloaded from Play Store
+            return installer != null && validInstallers.contains(installer);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isAppUsedSufficientlyToAskRating() {
+        DbUtils dbUtils = new DbUtils(requireActivity());
+        long firstRepliedTime = dbUtils.getFirstRepliedTime();
+        return firstRepliedTime > 0 && System.currentTimeMillis() - firstRepliedTime > 2 * 24 * 60 * 60 * 1000L && dbUtils.getNumReplies() >= MIN_REPLIES_TO_ASK_APP_RATING;
+    }
+
+    private void showFeedbackPopup(int rating) {
+        CustomDialog customDialog = new CustomDialog(requireActivity());
+        customDialog.showAppRatingDialog(rating, v -> {
+            String tag = (String) v.getTag();
+            if (tag.equals(requireActivity().getResources().getString(R.string.app_rating_goto_store_dialog_button1_title))) {
+                //not interested
+                preferencesManager.setPlayStoreRatingStatus("Not Interested");
+            } else if (tag.equals(requireActivity().getResources().getString(R.string.app_rating_goto_store_dialog_button2_title))) {
+                //Launch playstore rating page
+                rateApp();
+            } else if (tag.equals(requireActivity().getResources().getString(R.string.app_rating_feedback_dialog_mail_button_title))) {
+                launchEmailCompose();
+            } else if (tag.equals(requireActivity().getResources().getString(R.string.app_rating_feedback_dialog_telegram_button_title))) {
+                launchFeedbackApp();
+            }
+        });
+    }
+
+    private void launchEmailCompose() {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setDataAndType(Uri.parse("mailto:"), "plain/text"); // only email apps should handle this
+        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{Constants.EMAIL_ADDRESS});
+        intent.putExtra(Intent.EXTRA_SUBJECT, Constants.EMAIL_SUBJECT);
+        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void launchFeedbackApp() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            launchAppLegacy();
+            return;
+        }
+        boolean isLaunched;
+        try {
+            // In order for this intent to be invoked, the system must directly launch a non-browser app.
+            // Ref: https://developer.android.com/training/package-visibility/use-cases#avoid-a-disambiguation-dialog
+            Intent intent = new Intent(ACTION_VIEW, Uri.parse(Constants.TELEGRAM_URL))
+                    .addCategory(CATEGORY_BROWSABLE)
+                    .setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_REQUIRE_NON_BROWSER |
+                            FLAG_ACTIVITY_REQUIRE_DEFAULT);
+            requireActivity().startActivity(intent);
+            isLaunched = true;
+        } catch (ActivityNotFoundException e) {
+            // This code executes in one of the following cases:
+            // 1. Only browser apps can handle the intent.
+            // 2. The user has set a browser app as the default app.
+            // 3. The user hasn't set any app as the default for handling this URL.
+            isLaunched = false;
+        }
+        if (!isLaunched) { // Open Github latest release url in browser if everything else fails
+            String url = getString(R.string.watomatic_github_latest_release_url);
+            requireActivity().startActivity(new Intent(ACTION_VIEW).setData(Uri.parse(url)));
+        }
+    }
+
+    private void launchAppLegacy() {
+        if (getActivity() != null) {
+            Intent intent = new Intent(ACTION_VIEW, Uri.parse(Constants.TELEGRAM_URL));
+            List<ResolveInfo> list = getActivity().getPackageManager()
+                    .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            List<ResolveInfo> possibleBrowserIntents = getActivity().getPackageManager()
+                    .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), PackageManager.MATCH_DEFAULT_ONLY);
+            Set<String> excludeIntents = new HashSet<>();
+            for (ResolveInfo eachPossibleBrowserIntent : possibleBrowserIntents) {
+                excludeIntents.add(eachPossibleBrowserIntent.activityInfo.name);
+            }
+            //Check for non browser application
+            for (ResolveInfo resolveInfo : list) {
+                if (!excludeIntents.contains(resolveInfo.activityInfo.name)) {
+                    intent.setPackage(resolveInfo.activityInfo.packageName);
+                    requireActivity().startActivity(intent);
+                    break;
+                }
+            }
+        }
+    }
+
+    /*
+     * Start with rating the app
+     * Determine if the Play Store is installed on the device
+     *
+     * */
+    public void rateApp() {
+        try {
+            Intent rateIntent = rateIntentForUrl("market://details");
+            startActivity(rateIntent);
+        } catch (ActivityNotFoundException e) {
+            Intent rateIntent = rateIntentForUrl("https://play.google.com/store/apps/details");
+            startActivity(rateIntent);
+        }
+    }
+
+    private Intent rateIntentForUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("%s?id=%s", url, BuildConfig.APPLICATION_ID)));
+        int flags = Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
+        intent.addFlags(flags);
+        return intent;
+    }
+
+    private void setSwitchState() {
+        autoRepliesSwitch.setChecked(preferencesManager.isServiceEnabled());
+    }
+
+    //https://stackoverflow.com/questions/20141727/check-if-user-has-granted-notificationlistener-access-to-my-app/28160115
+    //TODO: Use in UI to verify if it needs enabling or restarting
+    public boolean isListenerEnabled(Context context, Class notificationListenerCls) {
+        ComponentName cn = new ComponentName(context, notificationListenerCls);
+        String flat = Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
+        return flat != null && flat.contains(cn.flattenToString());
+    }
+
+    private void openCustomReplyEditorActivity(View v) {
+        Intent intent = new Intent(requireActivity(), CustomReplyEditorActivity.class);
+        startActivity(intent);
+    }
+
+    private void openAboutActivity() {
+        Intent intent = new Intent(requireActivity(), AboutActivity.class);
+        startActivity(intent);
+    }
+
+    private void showPermissionsDialog() {
+        CustomDialog customDialog = new CustomDialog(requireActivity());
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.PERMISSION_DIALOG_TITLE, getString(R.string.permission_dialog_title));
+        bundle.putString(Constants.PERMISSION_DIALOG_MSG, getString(R.string.permission_dialog_msg));
+        customDialog.showDialog(bundle, null, (dialog, which) -> {
+            if (which == -2) {
+                //Decline
+                showPermissionDeniedDialog();
+            } else {
+                //Accept
+                launchNotificationAccessSettings();
+            }
+        });
+    }
+
+    private void showPermissionDeniedDialog() {
+        CustomDialog customDialog = new CustomDialog(requireActivity());
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.PERMISSION_DIALOG_DENIED_TITLE, getString(R.string.permission_dialog_denied_title));
+        bundle.putString(Constants.PERMISSION_DIALOG_DENIED_MSG, getString(R.string.permission_dialog_denied_msg));
+        bundle.putBoolean(Constants.PERMISSION_DIALOG_DENIED, true);
+        customDialog.showDialog(bundle, null, (dialog, which) -> {
+            if (which == -2) {
+                //Decline
+                setSwitchState();
+            } else {
+                //Accept
+                launchNotificationAccessSettings();
+            }
+        });
+    }
+
+    public void launchNotificationAccessSettings() {
+        //We should remove it few versions later
+        enableService(true);//we need to enable the service for it so show in settings
+
+        final String NOTIFICATION_LISTENER_SETTINGS;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            NOTIFICATION_LISTENER_SETTINGS = ACTION_NOTIFICATION_LISTENER_SETTINGS;
+        } else {
+            NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+        }
+        Intent i = new Intent(NOTIFICATION_LISTENER_SETTINGS);
+        notificationListenerLauncher.launch(i);
+    }
+
+    private void enableService(boolean enable) {
+        PackageManager packageManager = requireActivity().getPackageManager();
+        ComponentName componentName = new ComponentName(requireActivity(), NotificationService.class);
+        int settingCode = enable
+                ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        // enable dummyActivity (as it is disabled in the manifest.xml)
+        packageManager.setComponentEnabledSetting(componentName, settingCode, PackageManager.DONT_KILL_APP);
+
+    }
+
+    private void loadSettingsActivity() {
+        Intent intent = new Intent(requireActivity(), SettingsActivity.class);
+        requireActivity().startActivity(intent);
+    }
+
+    // Dialog 1: Apps with toggles and search
+    private void showAppsDialog() {
+
+        Set<App> supportedApps = Constants.SUPPORTED_APPS;
+        List<com.parishod.watomatic.model.data.DialogListItem> dialogItems = new ArrayList<>();
+        List<AppItem> regularApps = new ArrayList<>();
+        List<AppItem> experimentalApps = new ArrayList<>();
+
+        // Separate apps into regular and experimental
+        for (App app : supportedApps) {
+            AppItem item = new AppItem(
+                    R.drawable.ic_android_default_round,
+                    app.getName(),
+                    app.getPackageName(),
+                    app.getPackageName().equals("com.whatsapp") ? true : false,
+                    app.isExperimental()
+            );
+            if (app.isExperimental()) {
+                experimentalApps.add(item);
+            } else {
+                regularApps.add(item);
+            }
+        }
+
+        // Add regular apps section
+        if (!regularApps.isEmpty()) {
+            for (AppItem app : regularApps) {
+                dialogItems.add(new com.parishod.watomatic.model.data.DialogListItem.AppItemWrapper(app));
+            }
+        }
+
+        // Add experimental apps section
+        if (!experimentalApps.isEmpty()) {
+            dialogItems.add(new com.parishod.watomatic.model.data.DialogListItem.SectionHeader(getString(R.string.experimental)));
+            for (AppItem app : experimentalApps) {
+                dialogItems.add(new com.parishod.watomatic.model.data.DialogListItem.AppItemWrapper(app));
+            }
+        }
+
+        DialogConfig config = new DialogConfig(
+                DialogType.APPS,
+                "Apps",
+                "Select the apps you want to enable auto-reply for.", // description not needed for this dialog
+                false, // showSearch
+                "Search",
+                "",
+                dialogItems
+        );
+
+        UniversalDialogFragment dialog = UniversalDialogFragment.Companion.newInstance(requireActivity(), config);
+        dialog.setActionListener(this);
+        dialog.show(((MainActivity) requireActivity()).getSupportFragmentManager(), "apps_dialog");
+    }
+
+    // Dialog 2: Message Type with radio buttons
+    private void showMessageTypeDialog() {
+        List<MessageTypeItem> messageTypes = Arrays.asList(
+                new MessageTypeItem(getResources().getString(R.string.direct_messages), !preferencesManager.isGroupReplyEnabled()),  // Pre-selected
+                new MessageTypeItem(getResources().getString(R.string.all_messages), preferencesManager.isGroupReplyEnabled())
+                //new MessageTypeItem("Messages from Unknown Senders", false)
+        );
+
+        DialogConfig config = new DialogConfig(
+                DialogType.MESSAGE_TYPE,
+                "Message Type",
+                "Select message types",
+                false, // showSearch not needed
+                "Search",
+                "",  // searchHint not needed
+                messageTypes
+        );
+
+        UniversalDialogFragment dialog = UniversalDialogFragment.Companion.newInstance(requireActivity(),config);
+        dialog.setActionListener(this);
+        dialog.show(((MainActivity) requireActivity()).getSupportFragmentManager(), "message_type_dialog");
+    }
+
+    // Dialog 3: Cooldown with selection boxes
+    private void showCooldownDialog() {
+        List<CooldownItem> cooldownOptions = new ArrayList<>();
+        long cooldownInMinutes = preferencesManager.getAutoReplyDelay() / (60 * 1000);
+        initialCooldownTime = (int) cooldownInMinutes;
+        cooldownOptions.add(new CooldownItem((int) cooldownInMinutes));
+
+        DialogConfig config = new DialogConfig(
+                DialogType.COOLDOWN,
+                "Reply Cooldown",
+                "Set a minimum time interval between automatic replies to the same contact. " +
+                        "This prevents sending multiple replies in quick succession.",
+                false, // showSearch not needed
+                "",    // searchHint not needed
+                "Save",
+                cooldownOptions
+        );
+
+        UniversalDialogFragment dialog = UniversalDialogFragment.Companion.newInstance(requireActivity(), config);
+        dialog.setActionListener(this);
+        dialog.show(((MainActivity) requireActivity()).getSupportFragmentManager(), "cooldown_dialog");
+    }
+
+    @Override
+    public void onSaveClicked(DialogType dialogType) {
+        if (dialogType == DialogType.COOLDOWN) {
+            if(selectedCooldownTime != -1) {
+                long cooldownInMillis = selectedCooldownTime * 60 * 1000L;
+                preferencesManager.setAutoReplyDelay(cooldownInMillis);
+                updateCooldownFilterDisplay();
+                Toast.makeText(requireActivity(), "Cooldown settings saved", Toast.LENGTH_SHORT).show();
+            }
+            selectedCooldownTime = -1;//reset so that no accidental cahnges on going back to cooldown page
+        }
+    }
+
+    @Override
+    public void onItemToggled(int position, boolean isChecked) {
+        // Handle toggle switches (for Apps and Contacts)
+        Log.d("Dialog", "Item at position " + position + " toggled: " + isChecked);
+        enabledAppsCount.setText(String.format(getResources().getString(R.string.apps_enabled_count), preferencesManager.getEnabledApps().size(), Constants.SUPPORTED_APPS.size()));
+    }
+
+    @Override
+    public void onItemSelected(int position, boolean isSelected) {
+        // Handle radio button selections (for Message Type)
+        Log.d("Dialog", "Item at position " + position + " selected: " + isSelected);
+        PreferencesManager.getPreferencesInstance(requireActivity()).setGroupReplyPref(position == 1);
+        updateMessageType();
+    }
+
+    @Override
+    public void onSearchQuery(String query) {
+        // Handle search queries
+        Log.d("Dialog", "Search query: " + query);
+        // You can filter your data here and update the adapter
+    }
+
+    @Override
+    public void onCooldownChanged(int totalMinutes) {
+        selectedCooldownTime = totalMinutes;
+        if (selectedCooldownTime != initialCooldownTime) {
+            Fragment dialogFragment = getParentFragmentManager().findFragmentByTag("cooldown_dialog");
+            if (dialogFragment instanceof UniversalDialogFragment) {
+                ((UniversalDialogFragment) dialogFragment).setSaveButtonEnabled(true);
+            }
+        }
+        Log.d("Dialog", "Total cooldown time: " + totalMinutes);
+    }
+}

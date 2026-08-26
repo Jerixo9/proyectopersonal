@@ -1,0 +1,457 @@
+<resources>
+    <string name="app_name" translatable="false">Atomatic</string>
+    <string name="url_privacy_policy" translatable="false">https://adeekshith.github.io/watomatic/#/privacy-policy.md</string>
+    <string name="adeekshith_twitter_handle" translatable="false">\@adeekshith</string>
+    <string name="url_adeekshith_twitter" translatable="false">https://twitter.com/adeekshith</string>
+
+    <string name="about">About</string>
+    <string name="settings">Settings</string>
+    <string name="privacy_policy_label">Privacy Policy</string>
+    <string name="service_name">Incoming Message Notification Listener</string>
+    <string name="mainAutoReplyTextPlaceholder">(Custom Reply)</string>
+    <string name="auto_reply_default_message">Auto Reply\n⚠️ Thanks for your message! I’m currently unavailable and will get back to you as soon as I can.</string>
+    <string name="ai_auto_reply_default_message">AI Replies Enabled\nMessages are smartly handled by AI</string>
+    <string name="mainAutoReplyLabel">Auto reply text</string>
+    <string name="mainAutoReplySwitchOffLabel">Auto reply OFF</string>
+    <string name="mainAutoReplySwitchOnLabel">Auto reply ON</string>
+    <string name="mainAutoReplyEditBtnTooltip">Click to edit auto reply text</string>
+    <string name="to_help_you_leave_whatsapp">Setup auto-reply to help you leave messaging apps</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+    <string name="sure">I\'m Sure</string>
+    <string name="retry">Retry</string>
+    <string name="permission_dialog_title">Permission Required</string>
+    <string name="permission_dialog_msg">This app requires Notification Access permissions to work.</string>
+    <string name="permission_dialog_denied_title">Permission Denied</string>
+    <string name="permission_dialog_denied_msg">Without this permission app is unable to auto-reply to the notifications. Are you sure you want to deny the permission?</string>
+
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">Enable for apps</string>
+    <string name="enable_auto_reply_switch_msg">Enable Auto Reply Switch First.</string>
+    <string name="error_atleast_single_app_must_be_selected">Error: Select at-least a single app</string>
+
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">Auto reply for Group chats</string>
+    <string name="group_reply_on_info_message">Enabled auto reply for group chats</string>
+    <string name="group_reply_off_info_message">Disabled auto reply for group chats</string>
+
+    <string name="time_picker_title">Reply frequency (BETA)</string>
+    <string name="time_picker_sub_title_default">Respond to all messages without control</string>
+    <string name="time_picker_sub_title">Respond only once every %1$d day(s) for each person or group</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">Click to edit time delay between replies</string>
+    <string name="app_version">v%1$s</string>
+
+    <!-- Custom message editor -->
+    <string name="save">Save</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u>View templates from community and share yours too ➚</u></string>
+    <string name="append_watomatic_arribution_checkbox_label">Append Atomatic arribution to help spread the word</string>
+    <string name="sent_using_Watomatic">Sent using atomatic.app</string>
+
+    <string name="share_app_text">I am using Atomatic to break away from messaging apps. Try it out: watomatic.app</string>
+    <string name="share">Share</string>
+    <string name="share_subject">Atomatic: Auto Reply for Messaging apps</string>
+    <string name="watomatic_community_label"><u>Community</u></string>
+    <string name="watomatic_subreddit_label"><u>Let\'s discuss\nr/watomatic</u></string>
+    <string name="watomatic_subreddit_url" translatable="false">https://www.reddit.com/r/watomatic</string>
+    <string name="watomatic_github_url" translatable="false">https://github.com/adeekshith/watomatic</string>
+    <string name="watomatic_wato_message_url" translatable="false">https://www.reddit.com/r/watomatic/comments/lrkn7j/fellow_watos_share_your_creative_wato_message/</string>
+    <string name="watomatic_whatsnew_label">What\'s New?</string>
+    <string name="watomatic_github_latest_release_url" translatable="false">https://github.com/adeekshith/watomatic/releases/latest</string>
+
+    <!-- Share debug logs -->
+    <string name="app_logs_file_name" translatable="false">WatomaticLogs.txt</string>
+    <string name="share_email_body" translatable="false">Hi Team Watomatic,\nPlease find the attachment of the app logs.</string>
+    <string name="share_email_subject" translatable="false">Watomatic AppLogs</string>
+    <string name="share_email_id" translatable="false">watomatic@deekshith.in</string>
+    <string name="share_email_err_msg" translatable="false">Couldnot find any application to process this request</string>
+
+    <!-- keys and app internal strings -->
+    <string name="key_pref_app_language" translatable="false">pref_app_language</string>
+    <string name="pref_show_notification_replied_msg" translatable="false">pref_show_notification_replied_msg</string>
+    <string name="pref_auto_start_permission" translatable="false">pref_auto_start_permission</string>
+    <string name="pref_is_append_watomatic_attribution" translatable="false">pref_is_append_watomatic_attribution</string>
+    <string name="pref_show_foreground_service_notification" translatable="false">pref_show_foreground_service_notification</string>
+
+    <!-- app settings -->
+    <string name="show_notification_label">Show notification for replied messages</string>
+    <string name="preference_category_general_label">General</string>
+    <string name="preference_category_notifications_label">Notifications</string>
+    <string name="preference_category_troubleshooting_label">Troubleshooting</string>
+    <string name="enable_auto_start_label">Enable Auto Start</string>
+    <string name="add_attribution_label">Add Attribution</string>
+    <string name="enabled_apps_title">Enabled Apps</string>
+    <string name="always_on_notification">Always-On notification</string>
+    <string name="display_persistent_notification_summary">Display a persistent notification to ensure Watomatic is not killed by the system</string>
+    <string name="enable_auto_start_summary">Some devices might need you to manually enable Auto start for Watomatic from device settings</string>
+
+    <!-- Local language names (non translatable) -->
+    <string name="lang_en" translatable="false">English (en)</string>
+    <string name="lang_ar_rSA" translatable="false">اَلْعَرَبِيَّةُ (ar-SA)</string>
+    <string name="lang_ca_rES" translatable="false">Català (ca-ES)</string>
+    <string name="lang_de_rDE" translatable="false">Deutsch (de-DE)</string>
+    <string name="lang_es_rES" translatable="false">Español (es-ES)</string>
+    <string name="lang_es_rMX" translatable="false">Español (México) (es-MX)</string>
+    <string name="lang_eu_rES" translatable="false">Euskara (eu-ES)</string> <!-- Basque -->
+    <string name="lang_fi_rFI" translatable="false">Suomi (fi_FI)</string>
+    <string name="lang_fr_rFR" translatable="false">Français (fr-FR)</string>
+    <string name="lang_in_rID" translatable="false">Indonesian (in-ID)</string>
+    <string name="lang_it_rIT" translatable="false">Italiano (it-IT)</string>
+    <string name="lang_mk_rMK" translatable="false">македонски јазик (mk-MK)</string>
+    <string name="lang_nl_rNL" translatable="false">Nederlands (nl-NL)</string>
+    <string name="lang_pt_rBR" translatable="false">Portuguese (pt-BR)</string>
+    <string name="lang_pl_rPL" translatable="false">Polski (pl-PL)</string>
+    <string name="lang_ru_rRU" translatable="false">Pусский (ru-RU)</string>
+    <string name="lang_ta_rIN" translatable="false">தமிழ் (ta-IN)</string>
+    <string name="lang_tr_rTR" translatable="false">Türkçe (tr-TR)</string>
+    <string name="lang_hi_rIN" translatable="false">हिंदी (hi-IN)</string>
+
+    <!-- Language codes (non translatable) -->
+    <string name="lang_code_en" translatable="false">en</string>
+    <string name="lang_code_ar_rSA" translatable="false">ar-SA</string>
+    <string name="lang_code_ca_rES" translatable="false">ca-ES</string>
+    <string name="lang_code_de_rDE" translatable="false">de-DE</string>
+    <string name="lang_code_es_rES" translatable="false">es-ES</string>
+    <string name="lang_code_es_rMX" translatable="false">es-MX</string>
+    <string name="lang_code_eu_rES" translatable="false">eu-ES</string>
+    <string name="lang_code_fi_rFI" translatable="false">fi-FI</string>
+    <string name="lang_code_fr_rFR" translatable="false">fr-FR</string>
+    <string name="lang_code_in_rID" translatable="false">in-ID</string>
+    <string name="lang_code_it_rIT" translatable="false">it-IT</string>
+    <string name="lang_code_mk_rMK" translatable="false">mk-MK</string>
+    <string name="lang_code_nl_rNL" translatable="false">nl-NL</string>
+    <string name="lang_code_pt_rBR" translatable="false">pt-BR</string>
+    <string name="lang_code_pl_rPL" translatable="false">pl-PL</string>
+    <string name="lang_code_ru_rRU" translatable="false">ru-RU</string>
+    <string name="lang_code_ta_rIN" translatable="false">ta-IN</string>
+    <string name="lang_code_tr_rTR" translatable="false">tr-TR</string>
+    <string name="lang_code_hi_rIN" translatable="false">hi-IN</string>
+
+    <!-- App Language selection -->
+    <string name="app_language">App Language</string>
+
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">What do you think?</string>
+    <string name="app_rating_dialog_msg">We are interested in what you think of the app. Tap the stars above to rate it.</string>
+    <string name="app_rating_dialog_rate_button_title">Rate it!</string>
+    <string name="app_rating_dialog_rate_later_title">May be later</string>
+    <string name="app_rating_goto_store_dialog_title">We\'re happy!</string>
+    <string name="celebrate_emoji" translatable="false">😃🙌</string>
+    <string name="app_rating_goto_store_dialog_msg">Please share this rating of our app on the Google Play Store by tapping \"Continue\"!</string>
+    <string name="app_rating_pitch">This app is free, no ads, no tracking, open source and is made by contributors like you and me.
+        Your feedback is our only encouragement.</string>
+    <string name="app_rating_goto_store_dialog_button1_title">Not Interested</string>
+    <string name="app_rating_goto_store_dialog_button2_title">Continue</string>
+    <string name="app_rating_feedback_dialog_title">Contact us</string>
+    <string name="app_rating_feedback_dialog_msg">Let us know how we can improve.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">Email Us</string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">Telegram</string>
+
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">AutoStart Permission</string>
+    <string name="running_in_the_background">Running in the background</string>
+    <string name="auto_start_permission_dialog_message">Enable \"Auto Start\" permission in device settings to allow Watomatic to start on device restart.</string>
+    <string name="device_based_settings_message">Note: Settings may vary or may not be available based on your device</string>
+    <string name="setting_not_available_for_device">This setting is not available or may not be needed for your device.</string>
+    <string name="enable_auto_start_setting">Proceed</string>
+    <string name="decline_auto_start_setting">Cancel</string>
+    <string name="app_not_installed_text">Not installed</string>
+    <string name="contact_based_reply">Contact based replies</string>
+    <string name="pref_reply_contacts" translatable="false">pref_reply_contacts</string>
+    <string name="contact_reply_type">Reply to</string>
+    <string name="blacklist">Everyone except selected contacts</string>
+    <string name="whitelist">Nobody except selected contacts</string>
+    <string name="pref_code_blacklist" translatable="false">pref_blacklist</string>
+    <string name="pref_code_whitelist" translatable="false">pref_whitelist</string>
+    <string name="pref_reply_contacts_type" translatable="false">pref_reply_contacts_type</string>
+    <string name="enable_contact_based_reply">Enable contact based replies</string>
+    <string name="select_contacts">Select Contacts</string>
+    <string name="key_pref_select_contacts" translatable="false">pref_select_contacts</string>
+    <string name="contact_selector">Contact selector</string>
+    <string name="select_all">Select all</string>
+    <string name="select_none">Select none</string>
+    <string name="search">Search</string>
+    <string name="contact_permission_dialog_msg">Contact read access is required in order to filter names and enable this feature. Do you want to continue?</string>
+    <string name="contact_permission_dialog_proceed">Proceed</string>
+    <string name="contact_permission_dialog_cancel">Cancel</string>
+    <string name="undo">Undo</string>
+    <string name="all_contacts_selected">All contacts selected</string>
+    <string name="all_contacts_unselected">All contacts unselected</string>
+
+    <string name="donations_activity_title">Donations</string>
+    <string name="donations_data_fetch_error">Unable to fetch latest data</string>
+    <string name="donations_goal_title_0">Struggling</string>
+    <string name="donations_goal_0">Every penny counts to help it survive</string>
+    <string name="donations_goal_title_20">Just Surviving</string>
+    <string name="donations_goal_20">Supports daily maintenance and critical fixes</string>
+    <string name="donations_goal_title_30">Stable</string>
+    <string name="donations_goal_30">Quicker bug fixes and keeping it current</string>
+    <string name="donations_goal_title_70">Slow and steady progress</string>
+    <string name="donations_goal_70">Minor features and interface improvements</string>
+    <string name="donations_goal_title_100">Boost mode</string>
+    <string name="donations_goal_100">Help us make it a powerful auto reply app with lots of advanced features</string>
+    <string name="donation_progress_label">of monthly goal</string>
+    <string name="liberapay" translatable="false">Liberapay</string>
+    <string name="paypal" translatable="false">Paypal</string>
+    <string name="bitcoin" translatable="false">Bitcoin</string>
+    <string name="add_custom_contact">Add custom contact name</string>
+    <string name="contact_permission_suggestion_dialog_msg">Contact read access is required in order to filter replies by contact names. If the access is not enabled, only manually entered names will be allowed. Do you want to enable it?</string>
+    <string name="contact_permission_dialog_enable_permission">Enable contact permission</string>
+    <string name="contact_permission_dialog_not_now">Not now</string>
+    <string name="contact_permission_dialog_title">Contact read access</string>
+    <string name="delete">Delete</string>
+    <string name="github" translatable="false">GitHub</string>
+    <string name="dollar_sign" translatable="false">$</string>
+    <string name="decrease_frequency">Decrease frequency</string>
+    <string name="increase_frequency">Increase frequency</string>
+    <string name="current_donation_progress">Current donation progress</string>
+    <string name="error_name_cannot_be_blank">Name cannot be blank</string>
+    <string name="error_name_cannot_be_duplicate">Name already present</string>
+
+    <string name="post_notification_permission_snackbar_text">Notification permissions are required for this app. Enable it in settings.</string>
+    <string name="post_notification_permission_snackbar_setting">Settings</string>
+
+    <string name="pref_enable_openai_replies_title">Enable AI Auto-Replies</string>
+    <string name="pref_enable_openai_replies_summary">Use AI to generate smart replies</string>
+    <string name="pref_openai_api_key_title">API Key</string>
+    <string name="pref_openai_api_key_summary_not_set">API Key not set</string>
+    <string name="pref_openai_api_key_summary_set">API Key is set</string>
+    <string name="pref_openai_api_key_dialog_title">Enter your API Key</string>
+    <string name="pref_openai_api_source_title">API Provider</string>
+    <string name="pref_openai_custom_api_url_title">Custom API URL</string>
+    <string name="pref_openai_custom_api_url_summary">Enter your custom API URL</string>
+    <string name="pref_openai_custom_api_url_dialog_title">Custom API URL</string>
+    <string name="set_custom_api_url">Set custom API URL</string>
+
+    <string name="pref_openai_model_title">AI Model</string>
+    <string name="pref_openai_model_summary_default">Select preferred chat model</string>
+    <string name="pref_openai_model_dialog_title">Choose AI Model</string>
+    <string name="pref_openai_model_loading">Loading models...</string>
+    <string name="pref_openai_model_error">Could not load models. Check API Key or network.</string>
+    <string name="pref_openai_model_not_set">No model selected</string>
+    <string name="pref_openai_model_no_compatible_found">No compatible models found. Please check your API key or try again later.</string>
+
+    <string name="pref_category_openai_status_title">AI Service Status</string>
+    <string name="pref_openai_status_alert_title">AI Alert</string>
+    <string name="pref_openai_status_ok_summary">No recent issues detected.</string>
+    <string name="pref_openai_error_dismiss_confirmation">Error alert dismissed. It will reappear if the issue occurs again.</string>
+
+    <!-- Generative AI -->
+    <string name="generative_ai">Generative AI</string>
+    <string name="enable_generative_ai">Enable Generative AI</string>
+    <string name="custom_prompt">Custom Prompt</string>
+    <string name="pref_openai_enabled" translatable="false">pref_openai_enabled</string>
+    <string name="pref_openai_prompt" translatable="false">pref_openai_prompt</string>
+
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <string name="auto_reply_text">Auto Reply Text</string>
+    <string name="filters">Filters</string>
+
+    <!-- AI Reply Text -->
+    <string name="ai_reply_text">AI Reply: "Hey there! I'm currently unavailable and will get back to you as soon as possible." (OpenAI)</string>
+
+    <!-- Toggle and Buttons -->
+    <string name="auto_replies_enabled">Auto Replies Enabled</string>
+    <string name="edit">Edit</string>
+
+    <!-- Filter Items -->
+    <string name="contacts">Contacts</string>
+    <string name="all_contacts">All Contacts</string>
+    <string name="no_contacts">None Selected</string>
+    <string name="some_contacts">Selected Contacts</string>
+    <string name="message_type">Message Type</string>
+    <string name="direct_messages">Direct Messages Only</string>
+    <string name="all_messages">All Messages</string>
+    <string name="apps">Apps</string>
+    <string name="apps_enabled_count">%1$d/%2$d apps enabled</string>
+    <string name="reply_cooldown">Reply Cooldown</string>
+    <string name="ten_minutes">10 minutes</string>
+
+    <!-- Cooldown units -->
+    <string name="minutes">minutes</string>
+    <string name="hours">hours</string>
+    <string name="minute">minute</string>
+    <string name="hour">hour</string>
+    <string name="no_cooldown">No cooldown</string>
+
+    <string name="reset_timer">Reset</string>
+
+    <string name="error_invalid_url">Please enter a valid URL starting with http:// or https://</string>
+    <string name="use_an_llm_like_openai_to_generate_smart_responses">Use an LLM like OpenAI to generate smart responses.</string>
+    <string name="ai_provider_llm">AI Provider (LLM)</string>
+    <string name="openai">OpenAI</string>
+
+    <!-- Authentication -->
+    <string name="error_email_required">Email is required</string>
+    <string name="error_invalid_email">Invalid email address</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_password_too_short">Password must be at least 6 characters</string>
+    <string name="welcome_message">Welcome to Atomatic</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="profile">Profile</string>
+    <string name="guest">Guest</string>
+    <string name="logged_in_as">Logged in as %1$s</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
+
+    <!-- Contact-based replies UI -->
+    <string name="contact_based_replies">Contact-based replies</string>
+    <string name="reply_to_mode">Reply to mode</string>
+    <string name="reply_only_selected">Only selected contacts</string>
+    <string name="reply_everyone_except_selected">Everyone except selected</string>
+    <string name="contact_filter_disabled">Disabled</string>
+    <string name="contact_filter_enabled_whitelist">Only selected (%1$d)</string>
+    <string name="contact_filter_enabled_blacklist">Everyone except selected (%1$d)</string>
+    <string name="account">Account</string>
+    <string name="pref_account" translatable="false">pref_account</string>
+    <string name="resend_email">Resend Email</string>
+    <string name="email_verified">Email verified! 🎉</string>
+    <string name="i_ve_verified">I’ve Verified</string>
+    <string name="verify_your_email">Verify Your Email</string>
+
+    <!-- Login Activity -->
+    <string name="google_sign_in_failed">Google sign in failed: %s</string>
+    <string name="authentication_failed">Authentication failed</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="create_new_account_prompt">Would you like to create a new account with this email?\n\n%s</string>
+    <string name="create_account">Create Account</string>
+    <string name="email_already_registered">This email is already registered. Please try signing in.</string>
+    <string name="invalid_email_or_password_length">Please use a valid email and a password with at least 6 characters</string>
+    <string name="create_account_failed">Failed to create account: %s</string>
+    <string name="verification_email_sent">Verification email sent to %s</string>
+    <string name="verification_email_failed">Failed to send verification: %s</string>
+    <string name="verification_dialog_message">We’ve sent a verification link to %s. Please check your inbox and click the link. Once done, click below.</string>
+    <string name="email_not_verified_yet">Email not verified yet, please try again.</string>
+    <string name="verification_check_failed">Failed to check verification: %s</string>
+    <string name="verification_email_resent">Verification email resent to %s</string>
+    <string name="failed_to_resend_email">Failed to resend email: %s</string>
+    <string name="authentication_failed_with_message">Authentication failed: %s</string>
+    <string name="experimental">Experimental</string>
+
+    <!-- Subscription Info -->
+    <string name="subscription_info_title">Custom AI Setup</string>
+    <string name="subscription_premium_feature_title">Premium Feature Locked</string>
+    <string name="subscription_premium_feature_description">Subscribe to unlock personalized AI replies that sound just like you.</string>
+    <string name="subscription_features_title">Replies That Sound Just Like You</string>
+    <string name="subscription_feature_personalized_tone">Personalized tone training</string>
+    <string name="subscription_feature_context_aware">Context-aware replies</string>
+    <string name="subscription_feature_priority_support">Priority support</string>
+    <string name="subscription_choose_plan">Choose Your Plan</string>
+    <string name="subscription_monthly_plan">Monthly</string>
+    <string name="subscription_monthly_price">$1.99/month</string>
+    <string name="subscription_annual_plan">Annual</string>
+    <string name="subscription_annual_price">$10.99/year</string>
+    <string name="subscription_annual_savings">Save over 50%</string>
+    <string name="subscription_most_popular">Most Popular</string>
+    <string name="subscription_all_features_included">All features included</string>
+    <string name="subscription_subscribe_button">Choose Plan &amp; Continue</string>
+    <string name="subscription_restore_purchases">Restore Purchases</string>
+    <string name="subscription_terms_conditions">Terms &amp; Conditions</string>
+    <string name="subscription_status_no_subscription">No active subscription</string>
+    <string name="subscription_status_logged_in">Logged in as: %s</string>
+    <string name="subscription_loading">Checking subscription status…</string>
+    <string name="subscription_loading_description">Please wait while we fetch your subscription details</string>
+    <string name="subscription_renewal_date">Next Renewal:</string>
+    <string name="subscription_manage">Manage Subscription</string>
+    <string name="subscription_active_features">Your Active Features</string>
+    <string name="subscription_need_help">Need help? Contact Support</string>
+    <string name="configure_other_ai_llm_s_info">Configure Other AI LLM\'s to use AI Auto-Replies</string>
+    <string name="configure_ai_llm_s_info">Configure AI LLM\'s to use AI Auto-Replies</string>
+    <string name="your_premium_features_are_unlocked">Your premium features are unlocked.</string>
+    <string name="custom_ai_active">Custom AI Active</string>
+    <string name="subscription_plan">Subscription Plan:</string>
+    <string name="renews_on">Renews on:</string>
+    <string name="premium_monthly">Premium Monthly</string>
+    <string name="your_custom_ai_features">Your Custom AI Features</string>
+    <string name="manage_subscription">Manage Subscription</string>
+    <string name="need_help_learn_more">Need help? Learn More</string>
+    <string name="atomatic_ai">Atomatic AI</string>
+    <string name="managed_smart_responses">Managed smart responses</string>
+    <string name="bring_your_own_key">Bring Your Own Key</string>
+    <string name="use_external_llm_apis">Use external LLM APIs</string>
+
+    <!-- New UI strings for reply mode selection -->
+    <string name="manual_replies">Manual Replies</string>
+    <string name="automatic_ai">Automatic AI</string>
+    <string name="expand">Expand</string>
+    <string name="selected">Selected</string>
+    <string name="status">Status</string>
+    <string name="premium">Premium</string>
+
+    <!-- Subscription UI Refactor Strings -->
+    <string name="subscription_plan_description">Choose a plan that fits your auto-reply needs. All plans include high-speed AI processing.</string>
+    <string name="subscription_monthly_replies">500 AI replies/month</string>
+    <string name="subscription_annual_replies">2,000 AI replies/month</string>
+    <string name="subscription_best_value">BEST VALUE</string>
+    <string name="subscription_standard_plan">Standard</string>
+    <string name="subscription_per_month">/ mo</string>
+    <string name="subscription_per_year">/ yr</string>
+    <string name="subscription_subscribe_continue">Subscribe &amp; Continue</string>
+    <string name="subscription_feature_context_replies">Context-aware smart replies</string>
+    <string name="subscription_feature_tone_matching">Custom tone matching</string>
+    <string name="subscription_feature_messenger_support">Support for all major messengers</string>
+
+    <!-- Active Subscription Config Strings -->
+    <string name="ai_config_basic_capabilities">Basic AI capabilities</string>
+    <string name="ai_config_upgrade">Upgrade</string>
+    <string name="ai_config_custom_prompt_header">CUSTOM AI PROMPT</string>
+    <string name="ai_config_fallback_header">FALLBACK REPLY MESSAGE</string>
+    <string name="ai_config_prompt_hint">Example: Act as a helpful customer support agent for my bakery. Be polite, keep responses short, and mention we are closed on Sundays.</string>
+    <string name="ai_config_fallback_hint">Example: Sorry, I couldn\'t understand that. Please leave your contact details and I\'ll get back to you soon.</string>
+    <string name="ai_config_char_limit">Character limit: 500</string>
+    <string name="ai_config_prompt_help">Define the personality and rules the AI should follow when replying to messages.</string>
+    <string name="ai_config_fallback_help">This message is sent automatically if the AI is unable to generate a valid response.</string>
+    <string name="ai_config_info_message">AI responses are optimized for speed and context awareness using our core platform LLM.</string>
+    <string name="ai_config_reset_defaults">Reset to Defaults</string>
+    <string name="ai_config_save">Save Configuration</string>
+    <string name="ai_config_saved">Configuration saved successfully!</string>
+    <string name="ai_config_reset">Configuration reset to defaults</string>
+    <string name="ai_config_empty_error">Custom AI Prompt and Fallback Reply Message Cannot be empty</string>
+    <string name="unsaved_changes_title">Unsaved Changes</string>
+    <string name="unsaved_changes_message">You have unsaved changes. Do you want to discard them and leave this page?</string>
+    <string name="discard_changes">Discard</string>
+    <string name="stay_on_page">Stay</string>
+
+    <!-- Emoji placeholders (for better accessibility) -->
+    <string name="icon_crown">👑</string>
+    <string name="icon_brain">🧠</string>
+    <string name="icon_warning">⚠️</string>
+    <string name="icon_info">ℹ️</string>
+    <string name="icon_email">📨</string>
+    <string name="icon_lightning">⚡</string>
+    <string name="icon_checkmark">✓</string>
+
+    <!-- Plan Tiers -->
+    <string name="plan_free">Free</string>
+    <string name="plan_mini">Mini</string>
+    <string name="plan_standard">Standard</string>
+    <string name="plan_pro">Pro</string>
+    <string name="plan_free_replies">50 AI replies/month</string>
+    <string name="plan_mini_replies">500 AI replies/month</string>
+    <string name="plan_standard_replies">2,000 AI replies/month</string>
+    <string name="plan_pro_replies">10,000 AI replies/month</string>
+    <string name="plan_free_price">$0</string>
+    <string name="plan_current">Current Plan</string>
+    <string name="icon_person">👤</string>
+    <string name="icon_sparkles">✨</string>
+
+    <!-- Tab Labels -->
+    <string name="tab_monthly">Monthly</string>
+    <string name="tab_annual">Annual</string>
+    <string name="tab_save_badge">SAVE</string>
+
+    <!-- Subscription Badge Labels -->
+    <string name="badge_pro">PRO</string>
+    <string name="badge_free">FREE</string>
+
+    <!-- Subscription Date Labels -->
+    <string name="subscription_renews_on">Renews on %s</string>
+    <string name="subscription_expires_on">Expires on %s</string>
+
+    <!-- Quota Exhausted Notification -->
+    <string name="quota_exhausted_title">Quota Exhausted</string>
+    <string name="quota_exhausted_message">Your quota has been completed. Please upgrade to a higher plan to continue using the service.</string>
+    <string name="quota_exhausted_message_highest_plan">Your quota has been completed. It will renew on %1$s.</string>
+    <string name="upgrade_now">Upgrade</string>
+</resources>

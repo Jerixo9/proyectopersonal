@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">عن التطبيق</string>
+    <string name="settings">الإعدادات</string>
+    <string name="privacy_policy_label">سياسة الخصوصية</string>
+    <string name="service_name">رسالة واردة</string>
+    <string name="mainAutoReplyTextPlaceholder">(رد مخصص)</string>
+    <string name="auto_reply_default_message">رد تلقائي\n⚠️ المستخدم غير متوفر</string>
+    <string name="mainAutoReplyLabel">نص الرد التلقائي</string>
+    <string name="mainAutoReplySwitchOffLabel">إيقاف الرد التلقائي</string>
+    <string name="mainAutoReplySwitchOnLabel">الرد التلقائي مفعل</string>
+    <string name="mainAutoReplyEditBtnTooltip">انقر لتحرير نص الرد التلقائي</string>
+    <string name="decline">رفض</string>
+    <string name="accept">قبول</string>
+    <string name="sure">أنا متأكد</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="permission_dialog_title">الصلاحية مطلوبة</string>
+    <string name="permission_dialog_msg">يتطلب هذا التطبيق أذونات الوصول للإشعارات للعمل.</string>
+    <string name="permission_dialog_denied_title">تم رفض الإذن</string>
+    <string name="permission_dialog_denied_msg">بدون هذا الإذن لا يمكن لتطبيق الرد التلقائي على الإشعارات. هل أنت متأكد من أنك تريد رفض الإذن؟</string>
+    <!-- Select apps to auto reply -->
+    <string name="enable_for_apps">التطبيقات المفعله</string>
+    <string name="enable_auto_reply_switch_msg">تمكين الرد التلقائي شغله أولاً.</string>
+    <string name="error_atleast_single_app_must_be_selected">خطأ: اختر على الأقل تطبيق واحد</string>
+    <!-- Group chats -->
+    <string name="groupReplySwitchLabel">الرد التلقائي لمحادثات المجموعات</string>
+    <string name="group_reply_on_info_message">تمكين الرد التلقائي على دردشة المجموعات</string>
+    <string name="group_reply_off_info_message">تم تعطيل الرد التلقائي على دردشة المجموعات</string>
+    <string name="time_picker_title">تكرار الرد (تجريبي)</string>
+    <string name="time_picker_sub_title_default">الرد على جميع الرسائل بدون التحكم</string>
+    <string name="time_picker_sub_title">الرد مرة واحدة فقط كل %1$d يوم لكل شخص أو مجموعة</string>
+    <string name="time_format_placeholder">00:00</string>
+    <string name="time_picker_edit_btn_tooltip">انقر لتحرير تأخير الوقت بين الردود</string>
+    <string name="app_version">v%1$s</string>
+    <!-- Custom message editor -->
+    <string name="save">حفظ</string>
+    <string name="tip_view_messages_from_fellow_users">🦩 <u>➚ عرض القوالب من المجتمع ومشاركة قالبك أيضا </u></string>
+    <string name="share">مشاركة</string>
+    <string name="watomatic_community_label"><u>المجتمع</u></string>
+    <string name="watomatic_subreddit_label"><u>دعونا نتناقش\nr/watomatic</u></string>
+    <string name="watomatic_whatsnew_label">ما الجديد؟</string>
+    <!-- Share debug logs -->
+    <!-- keys and app internal strings -->
+    <!-- app settings -->
+    <string name="show_notification_label">إظهار الإشعار للرسائل المُجاب عليها</string>
+    <string name="preference_category_general_label">الإعدادات العامة</string>
+    <string name="preference_category_notifications_label">الإشعارات</string>
+    <string name="preference_category_troubleshooting_label">استكشاف الأخطاء</string>
+    <string name="enable_auto_start_label">تمكين المزامنة التلقائية</string>
+    <string name="enabled_apps_title">التطبيقات المفعلة</string>
+    <string name="enable_auto_start_summary">قد تحتاج بعض الأجهزة إلى تمكين التشغيل التلقائي للبرنامج يدوياً من إعدادات الجهاز</string>
+    <!-- Local language names (non translatable) -->
+    <!-- Basque -->
+    <!-- Language codes (non translatable) -->
+    <!-- App Language selection -->
+    <string name="app_language">لغة التطبيق</string>
+    <!-- App Rating Dialog -->
+    <string name="app_rating_dialog_title">ما رأيك؟</string>
+    <string name="app_rating_dialog_msg">نحن مهتمون برايك في التطبيق. انقر على النجوم أعلاه لتقييمه.</string>
+    <string name="app_rating_dialog_rate_button_title">قيّمنا!</string>
+    <string name="app_rating_dialog_rate_later_title">ربما لاحقاً</string>
+    <string name="app_rating_goto_store_dialog_title">نحن سعداء!</string>
+    <string name="app_rating_pitch">هذا التطبيق مجاني، لا إعلانات، لا تتبع، مفتوح المصدر، ويقوم به المساهمون مثلك و مثلي.
+        ملاحظاتك هي تشجيعنا الوحيد.</string>
+    <string name="app_rating_goto_store_dialog_button1_title">غير مهتم</string>
+    <string name="app_rating_goto_store_dialog_button2_title">متابعة</string>
+    <string name="app_rating_feedback_dialog_title">إتصل بنا</string>
+    <string name="app_rating_feedback_dialog_msg">تواصلوا معنا اذا كانت لديكم افكار من الممكن ان تحسن التطبيق.</string>
+    <string name="app_rating_feedback_dialog_mail_button_title">ارسل لنا</string>
+    <string name="app_rating_feedback_dialog_telegram_button_title">تيليجرام</string>
+    <!--Autostart Permission Dialog-->
+    <string name="auto_start_permission_dialog_title">إذن البدء التلقائي</string>
+    <string name="auto_start_permission_dialog_message">تمكين إذن \"بدء التشغيل التلقائي\" في إعدادات الجهاز للسماح للبرنامج بالبدء عند إعادة تشغيل الجهاز.</string>
+    <string name="device_based_settings_message">ملاحظة: قد تختلف الإعدادات أو قد لا تكون متاحة بناءً على جهازك</string>
+    <string name="setting_not_available_for_device">هذا الإعداد غير متوفر أو قد لا يكون مطلوبا لجهازك.</string>
+    <string name="enable_auto_start_setting">المتابعة</string>
+    <string name="decline_auto_start_setting">إلغاء</string>
+    <!-- Generative AI -->
+    <!--New UI Related-->
+    <!-- Main Screen Titles -->
+    <!-- AI Reply Text -->
+    <!-- Toggle and Buttons -->
+    <!-- Filter Items -->
+    <!-- Cooldown units -->
+    <!-- Authentication -->
+    <!-- Contact-based replies UI -->
+</resources>
