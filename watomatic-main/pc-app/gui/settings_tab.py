@@ -72,10 +72,10 @@ class SettingsTab(ctk.CTkFrame):
 
         self.sw_sim_mode = ctk.CTkSwitch(
             left_box,
-            text="Modo Simulación / Fallback Automático (Recomendado)",
+            text="Desactivar Motor de IA (Modo Fuera de Servicio)",
             command=self._on_sim_mode_toggle
         )
-        self.sw_sim_mode.select()
+        self.sw_sim_mode.deselect()
         self.sw_sim_mode.pack(anchor="w", padx=15, pady=(0, 15))
 
         btn_save_cfg = ctk.CTkButton(
@@ -165,7 +165,7 @@ class SettingsTab(ctk.CTkFrame):
                     txt = f"🟡 Ollama Online • Modelo '{status['target_model']}' no encontrado (Modelos: {', '.join(status['available_models']) or 'ninguno'})"
                     color = "#f59e0b"
             else:
-                txt = "🔴 Ollama no detectado en localhost:11434 (Usando simulación inteligente)"
+                txt = "🔴 Ollama no detectado en localhost:11434 (IA fuera de servicio)"
                 color = "#ef4444"
                 
             self.lbl_ollama_status.configure(text=txt, text_color=color)
@@ -181,7 +181,9 @@ class SettingsTab(ctk.CTkFrame):
         messagebox.showinfo("Configuración", "Parámetros de IA actualizados con éxito.")
 
     def _on_sim_mode_toggle(self):
-        backend_app.ai_engine.simulation_mode = not bool(self.sw_sim_mode.get())
+        # Si está activado (1), forzamos que simulation_mode = True (Desactiva IA real y arroja error)
+        # Si está desactivado (0), simulation_mode = False (Intenta usar Ollama)
+        backend_app.ai_engine.simulation_mode = bool(self.sw_sim_mode.get())
 
     def _send_test_message(self):
         msg = self.entry_test_msg.get().strip()

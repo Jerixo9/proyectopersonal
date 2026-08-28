@@ -80,6 +80,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
     private ActivityResultLauncher<Intent> notificationListenerLauncher;
     private ActivityResultLauncher<String> notificationPermissionLauncher;
     private MaterialSwitch autoRepliesSwitch;
+    private BottomNavigationView bottomNav;
     private TextView aiReplyText;
     private View view;
     private com.google.android.material.textfield.TextInputEditText etPcServerUrl;
@@ -418,7 +419,9 @@ public class MainFragment extends Fragment implements DialogActionListener {
         setSwitchState();
 
         // Set user auto reply text
-        aiReplyText.setText(customRepliesData.getTextToSendOrElse());
+        if (aiReplyText != null) {
+            aiReplyText.setText(customRepliesData.getTextToSendOrElse());
+        }
 
         updateContactsSelectorState();
         updateMessageType();

@@ -31,12 +31,13 @@ class AIService:
             if res.status_code == 200:
                 data = res.json()
                 models = [m.get("name", "") for m in data.get("models", [])]
-                has_model = any(self.model in m for m in models)
+                found_model = next((m for m in models if self.model in m), None)
+                has_model = bool(found_model)
                 status = {
                     "online": True,
                     "available_models": models,
                     "has_target_model": has_model,
-                    "target_model": self.model
+                    "target_model": found_model if found_model else self.model
                 }
                 self._cached_status = status
                 self._last_status_check = now
@@ -72,6 +73,18 @@ class AIService:
             blocks.append("\n".join(lines))
         return "\n\n".join(blocks)
 
+    def format_out_of_stock_display(self, db_path: str = database.DB_FILE) -> str:
+        """Formatea la lista de productos que normalmente venden pero que hoy están agotados."""
+        grouped_menu = database.get_menu_grouped_by_category(db_path, only_available=False)
+        out_of_stock = []
+        for cat, items in grouped_menu.items():
+            for item in items:
+                if not item["disponible"]:
+                    out_of_stock.append(item["nombre"])
+        if not out_of_stock:
+            return "Ninguno"
+        return ", ".join(out_of_stock)
+
     def format_cart_display(self, id_cliente: Optional[str], db_path: str = database.DB_FILE) -> str:
         """
         Formatea el resumen del carrito actual del cliente y el total a pagar calculado por Python.
@@ -100,29 +113,73 @@ class AIService:
         La IA tiene control conversacional total y emite etiquetas de acción al final de su mensaje.
         """
         menu_completo = self.format_menu_display(db_path)
+        menu_agotado = self.format_out_of_stock_display(db_path)
         carrito_actual = self.format_cart_display(id_cliente, db_path)
         _, total_cuenta, _ = database.get_cart_summary_and_total(id_cliente, db_path) if id_cliente else ("", 0.0, [])
+        
+        # Obtener métodos de pago dinámicamente
+        all_pms = database.get_all_payment_methods(db_path)
+        pm_names = [pm["nombre"] for pm in all_pms if pm["activo"]]
+        pm_agotados = [pm["nombre"] for pm in all_pms if not pm["activo"]]
+        pm_change = [pm["nombre"] for pm in all_pms if pm["activo"] and pm["pide_cambio"]]
+        
+        pm_str = ", ".join(pm_names) if pm_names else "Efectivo"
+        pm_change_str = ", ".join(pm_change) if pm_change else "Efectivo"
+        pm_agotados_str = ", ".join(pm_agotados) if pm_agotados else "Ninguno"
 
-        system_prompt = f"""Eres quien atiende el WhatsApp de nuestro restaurante. Eres una persona real: amable, concisa, directa y hablas con naturalidad (cero respuestas de contestadora automática).
+        system_prompt = f"""Eres un empleado serio que toma pedidos por WhatsApp de forma concisa y normal, sin adornos.
 
-MENÚ DEL LOCAL:
+REGLAS DE COMPORTAMIENTO (¡CRÍTICO!):
+1. TONO: Actúa como una persona normal y seria. NO uses signos de exclamación. NO seas excesivamente complaciente ni ofrezcas comentarios innecesarios. NUNCA ofrezcas ingredientes si el cliente no los pide. NUNCA escribas "[0 COP]" al final de tus mensajes.
+2. PRECIOS: Los precios son FIJOS. NUNCA restes ni sumes dinero por tu cuenta.
+3. INGREDIENTES: Si piden quitar un ingrediente que el plato no tiene, aclárale amablemente que no trae eso originalmente y tómale el pedido.
+4. DIRECCIÓN Y PAGO: NUNCA pidas todo de una vez. Cuando termine de pedir, dale el total y pide dirección. Luego de la dirección, pregunta método de pago. 
+   - Métodos ACEPTADOS hoy: {pm_str}. 
+   - Métodos DESACTIVADOS hoy: {pm_agotados_str}.
+   Si elige un método DESACTIVADO o que no existe, dile que no está disponible hoy. 
+   - Métodos que REQUIEREN CAMBIO: {pm_change_str}. Si elige uno de estos, pregúntale con cuánto paga. ¡OJO! Debes verificar que el monto con el que va a pagar sea MAYOR O IGUAL al total de la cuenta. Si es menor (ej. la cuenta es $9000 y te dice que paga con "5"), dile que el monto es insuficiente. Si elige un método que NO requiere cambio, simplemente dile que el domiciliario recibirá el pago en su casa.
+5. CONFIRMACIÓN FINAL: Solo cuando el cliente te haya dado 1) Su dirección real 2) El método de pago real y 3) Con cuánto paga (solo si el método requiere cambio, si no requiere asume N/A), emites la etiqueta final de NUEVO_PEDIDO.
+6. PRODUCTOS DEL MENÚ: SOLO PUEDES AGREGAR PRODUCTOS QUE ESTÉN EN EL MENÚ DISPONIBLE. Si el cliente pide algo que está en PRODUCTOS AGOTADOS, dile que de momento no tienen eso y que para mañana lo van a conseguir. Si pide algo que no está ni en disponibles ni agotados, dile que no venden ese tipo de cosas. NUNCA inventes productos ni asumas sustituciones (ej. si piden el "Producto A" y no lo tienes, no asumas que quieren el "Producto B").
+7. CIERRE DE PEDIDO: Si el cliente intenta cerrar el pedido (ej. dice "nada más") pero el carrito está vacío (Total: $0 COP), NO pidas dirección. Dile al cliente que su carrito está vacío y pregúntale qué desea agregar.
+8. LISTA DE AGOTADOS: NUNCA leas la lista entera de productos agotados al cliente ni se la envíes de forma proactiva. Solo úsala para saber qué responder si te piden un producto en específico que está en esa lista.
+
+=== MENÚ DISPONIBLE HOY ===
 {menu_completo}
+
+=== PRODUCTOS AGOTADOS ===
+{menu_agotado}
 
 ESTADO DEL PEDIDO DEL CLIENTE:
 - Productos en el carrito: {carrito_actual}
 - Total: ${total_cuenta:,.0f} COP
 
-REGLAS DE ATENCIÓN:
-1. Si piden ver el menú, muéstralo completo y ordenado.
-2. Si piden algo que NO está en el menú (ej. chorizo, salmón, pescado, empanadas, bagre, tilapia), diles con naturalidad que no manejas ese producto y recuérdales qué vendes. NUNCA asumas que un producto es una dirección.
-3. Si piden productos del menú (incluso con lenguaje informal como "unas papas" o "un perro sin salsa"), confírmalos de forma breve y añade al final de tu respuesta la etiqueta correspondiente.
-4. Si el cliente dice que no desea nada más ("eso es todo", "nada más"), dale el total y pídele su dirección y método de pago (Efectivo, Nequi, Transferencia o Datáfono).
-5. Solo cuando el cliente te dé la dirección y método de pago, confirma el pedido y emite la etiqueta [NUEVO_PEDIDO:...].
+REGLAS DE ETIQUETAS SECRETAS:
+Debes colocar las etiquetas al final de tu mensaje de forma invisible para el usuario. (Nota: NO escribas la palabra "OBLIGATORIO" en tus mensajes, solo imprime la etiqueta).
+- Para agregar CADA producto: [AGREGAR: Nombre EXACTO del Producto según el Menú | Cantidad | Notas o Ninguna] (SOLO emite esta etiqueta UNA vez en el momento en que te lo piden. NUNCA la repitas en mensajes siguientes).
+- Para cerrar el pedido al final de la charla: [NUEVO_PEDIDO: Dirección Real | Metodo de Pago Real | Monto Real o N/A]
 
-SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
-- Para agregar: [AGREGAR: Nombre Exacto del Menú | Cantidad | Notas o Ninguna]
-- Para quitar: [QUITAR: Nombre Exacto del Menú | Cantidad]
-- Para cerrar pedido: [NUEVO_PEDIDO: Dirección | Método de Pago | Monto con que paga o N/A]
+EJEMPLOS DE CONVERSACIÓN (¡IMÍTALOS EXACTAMENTE!):
+
+Cliente: "dame el Plato 1 sin cebolla y el Agotado 5"
+Tú: "El Plato 1 no trae cebolla de por sí, te lo anoto así. Sobre el Agotado 5, de momento no lo tenemos y para mañana lo vamos a conseguir. Ya agregué el Plato 1. ¿Deseas pedir algo más? [AGREGAR: Plato 1 | 1 | Ninguna]"
+
+Cliente: "y dame un carro"
+Tú: "No vendemos carros. Solo tenemos lo que está en nuestro menú. ¿Deseas pedir algo más?"
+
+Cliente: "eso seria todo"
+Tú: "Perfecto. El total es de $27,000 COP. ¿A qué dirección te enviamos el pedido?"
+
+Cliente: "a la [Dirección que dio el cliente]"
+Tú: "Anotado. ¿Cómo prefieres pagar? Tenemos {pm_str}."
+
+Cliente: "en efectivo" (Asumiendo que Efectivo es un método que requiere cambio)
+Tú: "¿Con cuánto vas a pagar para enviarte el cambio exacto?"
+
+Cliente: "con [Monto que dio el cliente]"
+Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente] y te llevaremos cambio de [Monto que dio el cliente]. Que lo disfrutes. [NUEVO_PEDIDO: [Dirección que dio el cliente] | Efectivo | [Monto que dio el cliente]]"
+
+Cliente: "transferencia" (Asumiendo que Transferencia es un método que NO requiere cambio)
+Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pago lo realizarás cuando el domiciliario llegue a tu casa y recibas el pedido. Que lo disfrutes. [NUEVO_PEDIDO: [Dirección que dio el cliente] | Transferencia | N/A]"
 """
         return system_prompt
 
@@ -194,8 +251,8 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
             clean_reply = self.clean_reply_text(raw_response)
             print(f"[DEBUG] 3. Respuesta final al cliente: '{clean_reply}'")
 
-            # 7. Guardar respuesta del asistente
-            database.save_chat_message(id_cliente, "assistant", clean_reply, db_path=db_path)
+            # 7. Guardar respuesta del asistente (con etiquetas para que la IA recuerde sus acciones)
+            database.save_chat_message(id_cliente, "assistant", raw_response, db_path=db_path)
 
             return clean_reply, saved_order_data
 
@@ -228,7 +285,7 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
             messages.append({"role": "user", "content": incoming_msg})
 
             payload = {
-                "model": self.model,
+                "model": ollama_status.get("target_model", self.model),
                 "messages": messages,
                 "stream": False,
                 "options": {
@@ -238,7 +295,9 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
             }
 
             try:
-                res = requests.post(f"{self.ollama_url}/api/chat", json=payload, timeout=35)
+                # El timeout se incrementa a 120s para permitir que modelos pesados como Llama 3.1 8B 
+                # carguen en RAM y puedan generar textos largos (como el menú) sin arrojar error.
+                res = requests.post(f"{self.ollama_url}/api/chat", json=payload, timeout=120)
                 if res.status_code == 200:
                     resp_json = res.json()
                     content = resp_json.get("message", {}).get("content", "").strip()
@@ -247,9 +306,8 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
             except Exception as e:
                 logger.warning(f"Error en llamada a Ollama: {e}")
 
-        # Simulación offline / fallback autónomo
-        return self._simulate_autonomous_response(incoming_msg, id_cliente, db_path=db_path)
-
+        # Fallback genérico si la IA no está disponible o el modo simulación (offline) está activo
+        return "Disculpa, en este momento mi sistema de inteligencia artificial se encuentra fuera de servicio. Por favor, verifica que el motor de IA local esté encendido e intenta nuevamente."
     def _process_action_tags(
         self,
         raw_text: str,
@@ -258,10 +316,14 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
         db_path: str = database.DB_FILE
     ) -> Optional[Dict[str, Any]]:
         """Interpreta las etiquetas emitidas por la IA y ejecuta las operaciones SQL silenciosas."""
-        # 1. Procesar AGREGAR: [AGREGAR: Nombre Exacto | Cantidad | Notas]
-        tags_agregar = re.findall(r'\[AGREGAR:\s*(.*?)\s*\|\s*(\d+)\s*\|\s*(.*?)\]', raw_text, flags=re.IGNORECASE)
+        # 1. Procesar AGREGAR (resiliente a corchetes o negritas de la IA)
+        tags_agregar = re.findall(r'(?:\[|\*\*?)?\s*AGREGAR:\s*([^\|]+)\|\s*(\d+)\s*\|\s*([^\]\*]+)(?:\]|\*\*?)?', raw_text, flags=re.IGNORECASE)
         for prod_name, cant_str, notas_str in tags_agregar:
             prod_name = prod_name.strip()
+            # Safeguard: ignorar si la IA imprimió la plantilla literal
+            if "nombre exacto" in prod_name.lower() or "nombre del producto" in prod_name.lower():
+                continue
+                
             cant = int(cant_str.strip())
             notas = notas_str.strip()
             if notas.lower() in ("ninguna", "ninguno", "sin modificaciones", "n/a", ""):
@@ -277,22 +339,26 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
                 )
                 print(f"[DEBUG SQL] Agregado al carrito: {cant}x {menu_item['nombre']} ({notas})")
 
-        # 2. Procesar QUITAR: [QUITAR: Nombre Exacto | Cantidad]
-        tags_quitar = re.findall(r'\[QUITAR:\s*(.*?)\s*\|\s*(\d+)\]', raw_text, flags=re.IGNORECASE)
+        # 2. Procesar QUITAR
+        tags_quitar = re.findall(r'(?:\[|\*\*?)?\s*QUITAR:\s*([^\|]+)\|\s*([^\]\*]+)(?:\]|\*\*?)?', raw_text, flags=re.IGNORECASE)
         for prod_name, cant_str in tags_quitar:
             prod_name = prod_name.strip()
             cant = int(cant_str.strip())
             database.remove_from_cart(id_cliente, prod_name, cantidad=cant, db_path=db_path)
             print(f"[DEBUG SQL] Retirado del carrito: {cant}x {prod_name}")
 
-        # 3. Procesar NUEVO_PEDIDO: [NUEVO_PEDIDO: Dirección | Método de Pago | Monto con que paga o N/A]
+        # 3. Procesar NUEVO_PEDIDO
         saved_order_data = None
-        tag_pedido = re.search(r'\[NUEVO_PEDIDO:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]', raw_text, flags=re.IGNORECASE)
+        tag_pedido = re.search(r'(?:\[|\*\*?)?\s*NUEVO_PEDIDO:\s*([^\|]+)\|\s*([^\|]+)\|\s*([^\]\*]+)(?:\]|\*\*?)?', raw_text, flags=re.IGNORECASE)
         if tag_pedido:
             dir_envio, metodo, paga_con = tag_pedido.groups()
             dir_envio = dir_envio.strip()
             metodo = metodo.strip()
             paga_con = paga_con.strip()
+            
+            # Safeguard crítico: si la IA escupe la plantilla literal, se ignora
+            if "direcci" in dir_envio.lower() or "monto" in paga_con.lower() or "método" in metodo.lower() or "metodo" in metodo.lower():
+                return None
             
             cart_summary, cart_total, cart_items = database.get_cart_summary_and_total(id_cliente, db_path)
             if cart_items:
@@ -329,167 +395,15 @@ SISTEMA DE ETIQUETAS (Colócalas SIEMPRE al final de tu mensaje si aplica):
         return saved_order_data
 
     def clean_reply_text(self, text: str, id_cliente: Optional[str] = None, db_path: str = database.DB_FILE) -> str:
-        """Limpia las etiquetas de acción [AGREGAR:...], [QUITAR:...], [NUEVO_PEDIDO:...] del texto visible."""
-        cleaned = re.sub(r'\[(?:AGREGAR|QUITAR|NUEVO_PEDIDO):.*?\]', '', text, flags=re.IGNORECASE).strip()
+        """Limpia las etiquetas de acción del texto visible eliminando hasta el corchete de cierre."""
+        cleaned = re.sub(r'(?:\[|\*\*?)?(?:AGREGAR|QUITAR|NUEVO_PEDIDO|VERIFICAR):[^\]\n]*(?:\]|\*\*?)?', '', text, flags=re.IGNORECASE)
+        # Limpiar cosas alucinadas como [0 COP] o [CARRITO_VACÍO]
+        cleaned = re.sub(r'\[\s*\d+\s*COP\s*\]', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\[\s*CARRITO_VAC[ÍI]O\s*\]', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\[\s*CARTEL\s+VAC[ÍI]O\s*\]', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\[\s*OBLIGATORIO\s*\]', '', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'^(?:Tú|Tu|Asistente|Bot):\s*', '', cleaned, flags=re.IGNORECASE).strip(' "\'\n')
-        return cleaned
-
-    def _simulate_autonomous_response(
-        self,
-        incoming_msg: str,
-        id_cliente: str,
-        db_path: str = database.DB_FILE
-    ) -> str:
-        """
-        Simulador offline de la IA para pruebas y ejecución determinista sin conexión a Ollama.
-        Interpreta intenciones en lenguaje natural y emite las etiquetas de acción correspondientes.
-        """
-        msg_l = incoming_msg.lower().strip()
-        menu = database.get_available_menu(db_path)
-        cart = database.get_cart(id_cliente, db_path)
-        cart_display = self.format_cart_display(id_cliente, db_path)
-        _, cart_total, _ = database.get_cart_summary_and_total(id_cliente, db_path)
-
-        # 1. Saludos simples
-        if msg_l in ["hola", "buenas", "buenos dias", "buenos días", "buen dia", "buen día", "buenas tardes", "buenas noches", "hey", "hola amigo"]:
-            return "Hola. ¿En qué te puedo colaborar hoy?"
-
-        # 2. Petición explícita de menú
-        if any(w in msg_l for w in ["menu", "menú", "carta", "la carta", "que tienen", "qué tienen", "ver menu", "ver menú", "dame el menu", "muestrame el menu", "muéstrame el menú"]):
-            menu_display = self.format_menu_display(db_path)
-            return f"Claro, aquí tienes nuestro menú:\n\n{menu_display}\n\n¿Qué te gustaría ordenar?"
-
-        # 3. Preguntas de identidad / casual
-        if any(w in msg_l for w in ["quien eres", "quién eres", "con quien hablo", "con quién hablo", "como te fue", "cómo te fue"]):
-            return "Hola, soy el encargado de tomar los pedidos acá en el local por WhatsApp. ¿En qué te puedo colaborar hoy?"
-
-        # 4. Quitar productos
-        is_quitar = any(w in msg_l for w in ["quita", "quitar", "elimina", "eliminar", "borra", "borrar", "menos"])
-        if is_quitar:
-            for it in menu:
-                if it["nombre"].lower() in msg_l or any(word in msg_l for word in it["nombre"].lower().split() if len(word) > 4):
-                    qty = 1
-                    qty_m = re.search(r"(\d+)", msg_l)
-                    if qty_m:
-                        qty = int(qty_m.group(1))
-                    return f"Listo, he retirado {qty} {it['nombre']} de tu orden.\n\n[QUITAR: {it['nombre']} | {qty}]"
-
-        # 5. Detección de combinaciones ambiguas / dudosas
-        if "sancocho de hamburguesa" in msg_l:
-            return "Disculpa, no te entendí bien. ¿Te refieres a nuestra Hamburguesa Clásica o buscas sancocho?"
-        if "empanada de pizza" in msg_l:
-            if "perro" in msg_l:
-                item_perro = database.find_menu_item("Perro Caliente Especial", db_path=db_path)
-                return f"Listo, agrego 1x Perro Caliente Especial a tu orden. Respecto a lo demás: ¿Te refieres a nuestra Pizza de peperonni o buscas empanadas? [AGREGAR: {item_perro['nombre']} | 1 | Ninguna]"
-            return "Disculpa, no te entendí bien. ¿Te refieres a nuestra Pizza de peperonni o buscas empanadas?"
-        if "bandeja de gaseosa" in msg_l:
-            return "Disculpa, no te entendí bien. ¿Te refieres a pedir una Gaseosa 400ml o qué presentación buscas?"
-
-        # 6. Agregar productos del menú (con mapeo semántico inteligente y orden de aparición)
-        found_matches = []
-        
-        if "pizza" in msg_l:
-            pos = msg_l.find("pizza")
-            item_p = database.find_menu_item("Pizza de peperonni", db_path=db_path)
-            if item_p:
-                found_matches.append((pos, f"[AGREGAR: {item_p['nombre']} | 1 | Ninguna]", f"1x {item_p['nombre']}"))
-
-        if "perro" in msg_l:
-            pos = msg_l.find("perro")
-            item_perro = database.find_menu_item("Perro Caliente Especial", db_path=db_path)
-            if item_perro:
-                notas = "sin queso" if "sin queso" in msg_l else "Ninguna"
-                nota_txt = f" ({notas})" if notas != "Ninguna" else ""
-                found_matches.append((pos, f"[AGREGAR: {item_perro['nombre']} | 1 | {notas}]", f"1x {item_perro['nombre']}{nota_txt}"))
-
-        if "hamburguesa" in msg_l:
-            pos = msg_l.find("hamburguesa")
-            h_name = "Hamburguesa Doble Carne" if "doble" in msg_l else "Hamburguesa Clásica"
-            item_h = database.find_menu_item(h_name, db_path=db_path)
-            if item_h:
-                qty = 1
-                qty_m = re.search(r"(\d+)\s*(?:hamburguesa|de)", msg_l)
-                if qty_m:
-                    qty = int(qty_m.group(1))
-                notas = "sin cebolla" if "sin cebolla" in msg_l else ("sin queso" if "sin queso" in msg_l else "Ninguna")
-                nota_txt = f" ({notas})" if notas != "Ninguna" else ""
-                found_matches.append((pos, f"[AGREGAR: {item_h['nombre']} | {qty} | {notas}]", f"{qty}x {item_h['nombre']}{nota_txt}"))
-
-        if "papa" in msg_l and not ("tomate" in msg_l or "paquete" in msg_l):
-            pos = msg_l.find("papa")
-            item_papas = database.find_menu_item("Papas Francesas Grandes", db_path=db_path)
-            if item_papas:
-                found_matches.append((pos, f"[AGREGAR: {item_papas['nombre']} | 1 | Ninguna]", f"1x {item_papas['nombre']}"))
-
-        if "gaseosa" in msg_l or "coca" in msg_l:
-            pos = msg_l.find("gaseosa") if "gaseosa" in msg_l else msg_l.find("coca")
-            item_g = database.find_menu_item("Gaseosa 400ml", db_path=db_path)
-            if item_g:
-                found_matches.append((pos, f"[AGREGAR: {item_g['nombre']} | 1 | Ninguna]", f"1x {item_g['nombre']}"))
-
-        # Detectar si hay productos no disponibles (Pescados, bagre, chorizo, tilapia, salmón, empanadas, etc.)
-        known_unavailable = ["chorizo", "bagre", "tilapia", "salmon", "salmón", "pescado", "mojarra", "camarones", "bocachico", "sancocho", "empanadas", "empanada", "sushi", "tacos", "taco", "arepas", "papas de tomate", "papas de paquete"]
-        detected_unavail = None
-        for unavail in known_unavailable:
-            if unavail in msg_l:
-                detected_unavail = unavail
-                break
-
-        # Combinación: Válidos + No disponibles
-        if found_matches and detected_unavail:
-            found_matches.sort(key=lambda x: x[0])
-            tag_str = " ".join([m[1] for m in found_matches])
-            desc_str = " y ".join([m[2] for m in found_matches])
-            return f"Listo, agrego {desc_str} a tu orden. Por el momento no manejamos {detected_unavail}. ¿Deseas agregar algo más del menú? {tag_str}"
-
-        # Solo No disponible
-        if detected_unavail:
-            return f"No amigo, {detected_unavail} no te manejamos por acá, solo comidas rápidas como hamburguesas, pizzas y perros calientes. ¿Te provoca algo de nuestro menú?"
-
-        # 8. Flujo de Checkout / Finalizar / Dirección y Pago
-        has_address = any(w in msg_l for w in ["calle", "cra", "carrera", "diagonal", "transversal", "av", "apto", "#"])
-        detected_payment = "Efectivo" if "efectivo" in msg_l else ("Nequi" if "nequi" in msg_l else ("Transferencia" if "transferencia" in msg_l else ("Datáfono" if "datafono" in msg_l or "datáfono" in msg_l else None)))
-        paga_con = "Paga con 50.000" if "50" in msg_l else "N/A"
-
-        # Mensaje compuesto: Producto + Dirección + Pago
-        if found_matches and has_address and detected_payment:
-            found_matches.sort(key=lambda x: x[0])
-            tag_add_str = " ".join([m[1] for m in found_matches])
-            return f"Listo, tu pedido ha sido confirmado y está en preparación para ser enviado a {incoming_msg}. ¡Muchas gracias por tu compra! {tag_add_str} [NUEVO_PEDIDO: {incoming_msg} | {detected_payment} | {paga_con}]"
-
-        if found_matches:
-            found_matches.sort(key=lambda x: x[0])
-            tag_str = " ".join([m[1] for m in found_matches])
-            desc_str = " y ".join([m[2] for m in found_matches])
-            return f"Listo, agrego {desc_str} a tu orden. ¿Deseas agregar algo más? {tag_str}"
-
-        # 9. Ver carrito / Cuánto es
-        if any(w in msg_l for w in ["mi pedido", "mi orden", "carrito", "cuanto es", "cuánto es", "la cuenta"]):
-            return f"Hasta el momento tu pedido es este:\n\n{cart_display}\n\n¿Deseas agregar algo más o confirmamos el pedido?"
-
-        # 10. Checkout directo
-        if has_address and detected_payment:
-            return f"Listo, tu pedido ha sido confirmado y está en preparación para ser enviado a {incoming_msg}. ¡Muchas gracias por tu compra! [NUEVO_PEDIDO: {incoming_msg} | {detected_payment} | {paga_con}]"
-
-        if has_address:
-            database.update_client_state(id_cliente=id_cliente, direccion=incoming_msg, db_path=db_path)
-            return f"Excelente, anotada tu dirección ({incoming_msg}). ¿Qué método de pago usarás (Efectivo, Nequi, Transferencia o Datáfono)?"
-
-        client_st = database.get_client_state(id_cliente, db_path)
-        saved_dir = client_st.get("direccion")
-        saved_metodo = client_st.get("metodo_pago")
-        effective_payment = detected_payment or saved_metodo
-        if effective_payment and saved_dir:
-            if effective_payment == "Efectivo" and paga_con == "N/A" and not saved_metodo:
-                database.update_client_state(id_cliente=id_cliente, metodo_pago="Efectivo", db_path=db_path)
-                return "¿Con cuánto vas a cancelar para llevarte el cambio exacto?"
-            return f"Listo, tu pedido ha sido confirmado y está en preparación para ser enviado a {saved_dir}. ¡Muchas gracias por tu compra! [NUEVO_PEDIDO: {saved_dir} | {effective_payment} | {paga_con}]"
-
-        if any(w in msg_l for w in ["eso seria", "eso sería", "nada mas", "nada más", "eso es todo", "solo eso", "no mas", "no más", "ya", "confirmar"]):
-            return f"Hasta el momento tu pedido es este:\n\n{cart_display}\n\nPor favor indícame tu dirección de entrega y qué método de pago usarás (Efectivo, Nequi, Transferencia o Datáfono)."
-
-        # Fallback conversacional
-        return "Hola, cuéntame en qué te podemos colaborar hoy con nuestro menú."
+        return cleaned.strip()
 
     # Compatibilidad con métodos de versiones previas para tests
     def generate_human_reply(self, *args, **kwargs) -> str:

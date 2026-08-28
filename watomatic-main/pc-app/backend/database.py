@@ -290,14 +290,18 @@ def find_menu_item(nombre_busqueda: str, db_path: str = DB_FILE) -> Optional[Dic
 
     best_match = None
     max_overlap = 0
+    best_ratio = 0.0
     for item in menu:
         item_words = set(_stem_word(w) for w in re.findall(r"\w+", item["nombre"]))
         overlap = len(meaningful_search.intersection(item_words))
-        if overlap > max_overlap:
+        
+        ratio = overlap / len(meaningful_search) if meaningful_search else 0
+        if overlap > max_overlap and ratio >= 0.6:
             max_overlap = overlap
+            best_ratio = ratio
             best_match = item
 
-    if max_overlap >= 1:
+    if best_match:
         return best_match
         
     return None

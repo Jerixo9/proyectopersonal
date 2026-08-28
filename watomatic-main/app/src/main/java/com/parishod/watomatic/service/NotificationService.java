@@ -19,6 +19,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import com.parishod.watomatic.model.utils.Constants;
 
 
@@ -57,6 +59,7 @@ public class NotificationService extends NotificationListenerService {
     private final String TAG = NotificationService.class.getSimpleName();
     private DbUtils dbUtils;
     private NotificationReplyDecider replyDecider;
+    private Timer heartbeatTimer;
 
     private NotificationReplyDecider getReplyDecider() {
         if (replyDecider == null) {
@@ -85,6 +88,45 @@ public class NotificationService extends NotificationListenerService {
         super.onStartCommand(intent, flags, startId);
         //START_STICKY  to order the system to restart your service as soon as possible when it was killed.
         return START_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        startHeartbeatTimer();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (heartbeatTimer != null) {
+            heartbeatTimer.cancel();
+            heartbeatTimer = null;
+        }
+        super.onDestroy();
+    }
+
+    private void startHeartbeatTimer() {
+        if (heartbeatTimer != null) return;
+        heartbeatTimer = new Timer();
+        heartbeatTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                PreferencesManager prefs = PreferencesManager.getPreferencesInstance(getApplicationContext());
+                if (prefs.isServiceEnabled() && prefs.isPcServerEnabled()) {
+                    String pcUrl = prefs.getPcServerUrl();
+                    PcServerService.getInstance().sendHeartbeat(pcUrl, "com.whatsapp", new PcServerService.HeartbeatCallback() {
+                        @Override
+                        public void onSuccess(boolean isOnline) {
+                            Log.d(TAG, "Continuous heartbeat sent successfully");
+                        }
+                        @Override
+                        public void onError(String errorMessage) {
+                            Log.w(TAG, "Continuous heartbeat failed: " + errorMessage);
+                        }
+                    });
+                }
+            }
+        }, 0, 20000); // 20 seconds loop
     }
 
     private void sendActualReply(StatusBarNotification sbn, NotificationWear notificationWear, String replyText) {
@@ -174,6 +216,12 @@ public class NotificationService extends NotificationListenerService {
             String pcUrl = preferencesManager.getPcServerUrl();
             Log.d(TAG, "Enviando mensaje al servidor PC: " + pcUrl + " de: " + senderTitle);
             
+            // Log early to prevent duplicate processing from fast asynchronous callbacks / notification updates
+            if (dbUtils == null) {
+                dbUtils = new DbUtils(getApplicationContext());
+            }
+            dbUtils.logReply(sbn, senderTitle);
+            
             final String finalSender = senderTitle;
             final String finalMsg = incomingMessage;
             PcServerService.getInstance().sendWebhookMessage(
@@ -217,6 +265,13 @@ public class NotificationService extends NotificationListenerService {
 
         if (shouldUseAI) {
             Log.d(TAG, "AI conditions met. Attempting to get AI reply.");
+            
+            // Log early to prevent duplicate processing from fast asynchronous callbacks
+            if (dbUtils == null) {
+                dbUtils = new DbUtils(getApplicationContext());
+            }
+            dbUtils.logReply(sbn, senderTitle);
+            
             fetchAiReply(sbn, notificationWear, incomingMessage, fallbackReplyText);
         } else {
             Log.d(TAG, "AI conditions not met. Using default reply.");
