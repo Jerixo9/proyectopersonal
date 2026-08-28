@@ -9,7 +9,7 @@ from backend import database
 logger = logging.getLogger("AIService")
 
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
-DEFAULT_MODEL = "llama3.1"
+DEFAULT_MODEL = "gemma4:e4b"
 
 class AIService:
     def __init__(self, ollama_url: str = DEFAULT_OLLAMA_URL, model: str = DEFAULT_MODEL):
@@ -161,7 +161,7 @@ Debes colocar las etiquetas al final de tu mensaje de forma invisible para el us
 EJEMPLOS DE CONVERSACIÓN (¡IMÍTALOS EXACTAMENTE!):
 
 Cliente: "dame el Plato 1 sin cebolla y el Agotado 5"
-Tú: "El Plato 1 no trae cebolla de por sí, te lo anoto así. Sobre el Agotado 5, de momento no lo tenemos y para mañana lo vamos a conseguir. Ya agregué el Plato 1. ¿Deseas pedir algo más? [AGREGAR: Plato 1 | 1 | Ninguna]"
+Tú: "El Plato 1 trae cebolla, pero te lo anoto sin cebolla. Sobre el Agotado 5, de momento no lo tenemos y para mañana lo vamos a conseguir. Ya agregué el Plato 1. ¿Deseas pedir algo más? [AGREGAR: Plato 1 | 1 | sin cebolla]"
 
 Cliente: "y dame un carro"
 Tú: "No vendemos carros. Solo tenemos lo que está en nuestro menú. ¿Deseas pedir algo más?"
@@ -288,8 +288,9 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
                 "model": ollama_status.get("target_model", self.model),
                 "messages": messages,
                 "stream": False,
+                "keep_alive": "60m",
                 "options": {
-                    "temperature": 0.25,
+                    "temperature": 0.15,
                     "top_p": 0.9
                 }
             }

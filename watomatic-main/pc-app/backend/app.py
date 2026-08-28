@@ -137,7 +137,7 @@ def receive_heartbeat(req: HeartbeatRequest):
 def receive_incoming_message(req: WebhookRequest, background_tasks: BackgroundTasks):
     """
     Recibe el mensaje entrante desde la app Android (Watomatic).
-    Procesa con la IA (Ollama / Gemma 3:4B), guarda contexto, detecta pedidos y retorna réplica.
+    Procesa con la IA (Ollama / gemma4:e4b), guarda contexto, detecta pedidos y retorna réplica.
     """
     sender = req.sender.strip()
     message = req.message.strip()

@@ -1,7 +1,7 @@
 import requests
 
 payload = {
-    "model": "llama3.1",
+    "model": "gemma4:e4b",
     "messages": [{"role": "user", "content": "hola"}],
     "stream": False
 }

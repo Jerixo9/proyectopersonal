@@ -35,7 +35,7 @@ class SettingsTab(ctk.CTkFrame):
 
         lbl_ol_title = ctk.CTkLabel(
             ollama_card,
-            text="🧠 Motor Local Ollama (Llama 3.1)",
+            text="🧠 Motor Local Ollama (gemma4:e4b)",
             font=ctk.CTkFont(size=13, weight="bold"),
             text_color="#38bdf8"
         )
