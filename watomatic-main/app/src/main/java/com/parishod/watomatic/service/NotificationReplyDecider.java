@@ -16,9 +16,8 @@ import static java.lang.Math.max;
  * a NotificationListenerService instance.
  */
 public class NotificationReplyDecider {
-
-    // Do not reply to consecutive notifications from same person/group within this window
-    private static final int MIN_DELAY_BETWEEN_REPLIES_MS = 10 * 1000;
+    // Changed to 0 so all consecutive messages from the same person are sent to the webhook
+    private static final int MIN_DELAY_BETWEEN_REPLIES_MS = 0;
 
     private final PreferencesManager preferencesManager;
     private final DbUtils dbUtils;

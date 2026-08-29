@@ -133,11 +133,14 @@ def receive_heartbeat(req: HeartbeatRequest):
         "phone_connected": True
     }
 
+# Diccionario para gestionar el debouncing por usuario
+user_debouncers: Dict[str, Dict[str, Any]] = {}
+
 @app.post("/api/webhook")
-def receive_incoming_message(req: WebhookRequest, background_tasks: BackgroundTasks):
+async def receive_incoming_message(req: WebhookRequest, background_tasks: BackgroundTasks):
     """
     Recibe el mensaje entrante desde la app Android (Watomatic).
-    Procesa con la IA (Ollama / gemma4:e4b), guarda contexto, detecta pedidos y retorna réplica.
+    Usa debouncing de 10 segundos para consolidar mensajes rápidos del mismo usuario.
     """
     sender = req.sender.strip()
     message = req.message.strip()
@@ -145,31 +148,81 @@ def receive_incoming_message(req: WebhookRequest, background_tasks: BackgroundTa
     if not sender or not message:
         raise HTTPException(status_code=400, detail="Sender y message no pueden estar vacíos.")
 
-    # Procesar con motor de IA
-    clean_reply, new_order = ai_engine.process_incoming_message(
-        id_cliente=sender,
-        incoming_msg=message
-    )
+    if sender not in user_debouncers:
+        user_debouncers[sender] = {
+            "active_batch": None
+        }
+    
+    session = user_debouncers[sender]
 
-    # Si se cerró un pedido
-    if new_order:
-        # Sonido de alerta
-        background_tasks.add_task(play_order_alert_sound)
-        # Notificar a la UI para disparar el Pop-up emergente y refrescar la lista
-        notify_ui("new_order", new_order)
-    else:
-        notify_ui("chat_message", {
-            "id_cliente": sender,
-            "user_message": message,
-            "reply": clean_reply
+    # Si no hay un lote activo (o el anterior ya se mandó a procesar), creamos uno
+    if session.get("active_batch") is None:
+        session["active_batch"] = {
+            "messages": [],
+            "timer_task": None,
+            "future": None
+        }
+
+    batch = session["active_batch"]
+    batch["messages"].append(message)
+
+    # Si hay una petición HTTP anterior *del mismo lote* esperando, la cancelamos retornando [IGNORE]
+    if batch["future"] and not batch["future"].done():
+        batch["future"].set_result({
+            "status": "success",
+            "reply": "[IGNORE]",
+            "order_created": False,
+            "order": None
         })
 
-    return {
-        "status": "success",
-        "reply": clean_reply,
-        "order_created": new_order is not None,
-        "order": new_order
-    }
+    loop = asyncio.get_running_loop()
+    new_future = loop.create_future()
+    batch["future"] = new_future
+
+    if batch["timer_task"]:
+        batch["timer_task"].cancel()
+
+    async def process_after_delay(current_batch):
+        try:
+            await asyncio.sleep(20.0) # Espera de 20 segundos según solicita el usuario
+        except asyncio.CancelledError:
+            return
+
+        # Si el temporizador termina, desvinculamos este lote de la sesión para que los siguientes mensajes formen un lote nuevo
+        if user_debouncers[sender].get("active_batch") is current_batch:
+            user_debouncers[sender]["active_batch"] = None
+
+        combined_messages = "\n".join(current_batch["messages"])
+        
+        # Llamamos al motor sincrónico de IA en un hilo separado
+        clean_reply, new_order = await asyncio.to_thread(
+            ai_engine.process_incoming_message,
+            sender,
+            combined_messages
+        )
+
+        if new_order:
+            background_tasks.add_task(play_order_alert_sound)
+            notify_ui("new_order", new_order)
+        else:
+            notify_ui("chat_message", {
+                "id_cliente": sender,
+                "user_message": combined_messages,
+                "reply": clean_reply
+            })
+
+        # Al finalizar la IA, resolvemos el future que estaba esperando por este lote
+        if current_batch["future"] and not current_batch["future"].done():
+            current_batch["future"].set_result({
+                "status": "success",
+                "reply": clean_reply,
+                "order_created": new_order is not None,
+                "order": new_order
+            })
+
+    batch["timer_task"] = asyncio.create_task(process_after_delay(batch))
+
+    return await new_future
 
 @app.get("/api/status")
 def get_system_status():

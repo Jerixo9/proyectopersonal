@@ -2,7 +2,11 @@ import re
 import json
 import logging
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import traceback
+import threading
+from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
 from backend import database
 
@@ -18,6 +22,14 @@ class AIService:
         self.simulation_mode = False
         self._cached_status = None
         self._last_status_check = 0.0
+        
+        # Robust connection: Session with retries
+        self.session = requests.Session()
+        retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        
+        # Lock to prevent overloading Ollama with concurrent requests
+        self.llm_lock = threading.Lock()
 
     def check_ollama_status(self, force: bool = False) -> Dict[str, Any]:
         """Comprueba si el servidor de Ollama está activo y si el modelo está descargado."""
@@ -27,7 +39,7 @@ class AIService:
             return self._cached_status
 
         try:
-            res = requests.get(f"{self.ollama_url}/api/tags", timeout=0.4)
+            res = self.session.get(f"{self.ollama_url}/api/tags", timeout=0.4)
             if res.status_code == 200:
                 data = res.json()
                 models = [m.get("name", "") for m in data.get("models", [])]
@@ -142,6 +154,7 @@ REGLAS DE COMPORTAMIENTO (¡CRÍTICO!):
 6. PRODUCTOS DEL MENÚ: SOLO PUEDES AGREGAR PRODUCTOS QUE ESTÉN EN EL MENÚ DISPONIBLE. Si el cliente pide algo que está en PRODUCTOS AGOTADOS, dile que de momento no tienen eso y que para mañana lo van a conseguir. Si pide algo que no está ni en disponibles ni agotados, dile que no venden ese tipo de cosas. NUNCA inventes productos ni asumas sustituciones (ej. si piden el "Producto A" y no lo tienes, no asumas que quieren el "Producto B").
 7. CIERRE DE PEDIDO: Si el cliente intenta cerrar el pedido (ej. dice "nada más") pero el carrito está vacío (Total: $0 COP), NO pidas dirección. Dile al cliente que su carrito está vacío y pregúntale qué desea agregar.
 8. LISTA DE AGOTADOS: NUNCA leas la lista entera de productos agotados al cliente ni se la envíes de forma proactiva. Solo úsala para saber qué responder si te piden un producto en específico que está en esa lista.
+9. MOSTRAR MENÚ: Si el cliente pide ver el menú, NUNCA lo resumas ni envíes solo las categorías. Debes enviarlo COMPLETO, exactamente con los mismos nombres, precios e ingredientes como se muestra en la sección MENÚ DISPONIBLE HOY.
 
 === MENÚ DISPONIBLE HOY ===
 {menu_completo}
@@ -201,7 +214,8 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
 
         # Reinicio / Reset explícito
         if msg_clean in ["reiniciar", "/reiniciar", "reset", "/reset", "limpiar", "cancelar pedido", "borrar pedido", "empezar de nuevo"]:
-            print(f"[DEBUG] -> Detectado comando de reinicio para {id_cliente}")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [DEBUG] -> Detectado comando de reinicio para {id_cliente}")
             database.reset_client_session(id_cliente, db_path=db_path)
             return "Sesión y carrito reiniciados correctamente. Hola. ¿En qué te puedo colaborar hoy?", None
 
@@ -219,9 +233,10 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
         2. La IA genera la respuesta conversacional completa y emite etiquetas [AGREGAR:...], [QUITAR:...], [NUEVO_PEDIDO:...].
         3. Python ejecuta silenciosamente las acciones en la base de datos y limpia el texto final.
         """
-        print(f"\n--- [NUEVO MENSAJE RECIBIDO] ---")
-        print(f"Cliente ID: {id_cliente}")
-        print(f"Mensaje: '{incoming_msg}'")
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        print(f"\n[{ts}] --- [NUEVO MENSAJE RECIBIDO] ---")
+        print(f"[{ts}] Cliente ID: {id_cliente}")
+        print(f"[{ts}] Mensaje: '{incoming_msg}'")
 
         try:
             # 1. Verificar expiración de sesión por inactividad (> 2 horas)
@@ -233,23 +248,27 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
                 reply_text, order_data = fast_result
                 database.save_chat_message(id_cliente, "user", incoming_msg, db_path=db_path)
                 database.save_chat_message(id_cliente, "assistant", reply_text, db_path=db_path)
-                print(f"[DEBUG] -> Respuesta de reinicio entregada.")
+                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                print(f"[{ts}] [DEBUG] -> Respuesta de reinicio entregada.")
                 return reply_text, order_data
 
             # 3. Guardar mensaje del usuario
             database.save_chat_message(id_cliente, "user", incoming_msg, db_path=db_path)
 
             # 4. Invocación autónoma de la IA (Ollama o simulación offline)
-            print(f"[DEBUG] 1. Llamando a la IA con contexto completo...")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [DEBUG] 1. Llamando a la IA con contexto completo...")
             raw_response = self._call_autonomous_llm(incoming_msg, id_cliente, db_path=db_path)
-            print(f"[DEBUG] 2. Respuesta raw de la IA: '{raw_response}'")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [DEBUG] 2. Respuesta raw de la IA: '{raw_response}'")
 
             # 5. Ejecutar acciones en SQLite a partir de las etiquetas emitidas
             saved_order_data = self._process_action_tags(raw_response, id_cliente, incoming_msg, db_path=db_path)
 
             # 6. Limpiar etiquetas para presentar al cliente
             clean_reply = self.clean_reply_text(raw_response)
-            print(f"[DEBUG] 3. Respuesta final al cliente: '{clean_reply}'")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [DEBUG] 3. Respuesta final al cliente: '{clean_reply}'")
 
             # 7. Guardar respuesta del asistente (con etiquetas para que la IA recuerde sus acciones)
             database.save_chat_message(id_cliente, "assistant", raw_response, db_path=db_path)
@@ -257,7 +276,8 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
             return clean_reply, saved_order_data
 
         except Exception as e:
-            print("[ERROR CRÍTICO EN PROCESS_INCOMING_MESSAGE]:")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [ERROR CRÍTICO EN PROCESS_INCOMING_MESSAGE]:")
             traceback.print_exc()
             error_reply = "Disculpa, tuve un pequeño problema técnico al procesar tu mensaje. ¿Me repites qué deseas ordenar?"
             try:
@@ -296,15 +316,17 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
             }
 
             try:
-                # El timeout se incrementa a 120s para permitir que modelos pesados como Llama 3.1 8B 
-                # carguen en RAM y puedan generar textos largos (como el menú) sin arrojar error.
-                res = requests.post(f"{self.ollama_url}/api/chat", json=payload, timeout=120)
+                # El timeout se incrementa a 600s (10 minutos) para evitar caidas de conexion con modelos pesados
+                with self.llm_lock:
+                    res = self.session.post(f"{self.ollama_url}/api/chat", json=payload, timeout=600)
                 if res.status_code == 200:
                     resp_json = res.json()
                     content = resp_json.get("message", {}).get("content", "").strip()
                     if content:
                         return content
             except Exception as e:
+                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                print(f"[{ts}] Error en llamada a Ollama: {e}")
                 logger.warning(f"Error en llamada a Ollama: {e}")
 
         # Fallback genérico si la IA no está disponible o el modo simulación (offline) está activo
@@ -338,7 +360,8 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
                     notas=notas,
                     db_path=db_path
                 )
-                print(f"[DEBUG SQL] Agregado al carrito: {cant}x {menu_item['nombre']} ({notas})")
+                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                print(f"[{ts}] [DEBUG SQL] Agregado al carrito: {cant}x {menu_item['nombre']} ({notas})")
 
         # 2. Procesar QUITAR
         tags_quitar = re.findall(r'(?:\[|\*\*?)?\s*QUITAR:\s*([^\|]+)\|\s*([^\]\*]+)(?:\]|\*\*?)?', raw_text, flags=re.IGNORECASE)
@@ -346,7 +369,8 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
             prod_name = prod_name.strip()
             cant = int(cant_str.strip())
             database.remove_from_cart(id_cliente, prod_name, cantidad=cant, db_path=db_path)
-            print(f"[DEBUG SQL] Retirado del carrito: {cant}x {prod_name}")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            print(f"[{ts}] [DEBUG SQL] Retirado del carrito: {cant}x {prod_name}")
 
         # 3. Procesar NUEVO_PEDIDO
         saved_order_data = None
@@ -391,7 +415,8 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
                 }
                 database.clear_cart(id_cliente, db_path)
                 database.clear_client_state(id_cliente, db_path)
-                print(f"[DEBUG SQL] Pedido confirmado creado #{order_id} para {dir_envio}")
+                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                print(f"[{ts}] [DEBUG SQL] Pedido confirmado creado #{order_id} para {dir_envio}")
 
         return saved_order_data
 

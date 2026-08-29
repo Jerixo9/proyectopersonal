@@ -233,6 +233,10 @@ public class NotificationService extends NotificationListenerService {
                     @Override
                     public void onSuccess(String replyText, boolean isOrderCreated) {
                         Log.d(TAG, "Respuesta recibida del PC: " + replyText);
+                        if ("[IGNORE]".equals(replyText)) {
+                            Log.d(TAG, "Mensaje ignorado silenciosamente por debouncing en servidor.");
+                            return;
+                        }
                         if (replyText != null && !replyText.trim().isEmpty()) {
                             sendActualReply(sbn, notificationWear, replyText);
                         } else {
