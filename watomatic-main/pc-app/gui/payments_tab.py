@@ -126,9 +126,44 @@ class PaymentsTab(ctk.CTkFrame):
         )
         btn_refresh.pack(side="right")
 
+        # Barra de Configuración de Domicilio
+        domicilio_frame = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        domicilio_frame.pack(fill="x", padx=15, pady=(0, 10))
+        
+        lbl_dom = ctk.CTkLabel(domicilio_frame, text="Configuración de Domicilio:", font=ctk.CTkFont(size=13, weight="bold"))
+        lbl_dom.pack(side="left", padx=15, pady=10)
+
+        # Leer valores actuales
+        dom_activo = database.get_config("domicilio_activo", "0") == "1"
+        dom_precio = database.get_config("domicilio_precio", "0")
+
+        self.sw_domicilio = ctk.CTkSwitch(domicilio_frame, text="Cobrar domicilio", command=self._save_dom_config)
+        self.sw_domicilio.pack(side="left", padx=10)
+        if dom_activo:
+            self.sw_domicilio.select()
+        else:
+            self.sw_domicilio.deselect()
+
+        lbl_precio = ctk.CTkLabel(domicilio_frame, text="Valor ($):")
+        lbl_precio.pack(side="left", padx=(15, 5))
+
+        self.entry_dom_precio = ctk.CTkEntry(domicilio_frame, placeholder_text="Ej: 3000", width=120)
+        self.entry_dom_precio.pack(side="left", padx=5)
+        self.entry_dom_precio.insert(0, dom_precio)
+        self.entry_dom_precio.bind("<FocusOut>", lambda e: self._save_dom_config())
+        self.entry_dom_precio.bind("<Return>", lambda e: self._save_dom_config())
+
         # Lista de Métodos de Pago
         self.scroll_payments = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll_payments.pack(fill="both", expand=True, padx=15, pady=(0, 10))
+
+    def _save_dom_config(self):
+        activo = "1" if self.sw_domicilio.get() else "0"
+        precio = self.entry_dom_precio.get().strip()
+        if not precio.isdigit():
+            precio = "0"
+        database.set_config("domicilio_activo", activo)
+        database.set_config("domicilio_precio", precio)
 
     def refresh_payments(self):
         for widget in self.scroll_payments.winfo_children():

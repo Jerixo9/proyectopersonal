@@ -26,9 +26,21 @@ def init_db(db_path: str = DB_FILE):
                 precio REAL NOT NULL,
                 ingredientes TEXT,
                 categoria TEXT DEFAULT 'General',
-                disponible BOOLEAN DEFAULT 1
+                disponible BOOLEAN DEFAULT 1,
+                tiene_combo BOOLEAN DEFAULT 0,
+                desc_combo TEXT DEFAULT '',
+                precio_combo REAL DEFAULT 0
             );
         """)
+        
+        # Migraciones Menu: agregar columnas de combo
+        try:
+            cursor.execute("ALTER TABLE Menu ADD COLUMN tiene_combo BOOLEAN DEFAULT 0")
+            cursor.execute("ALTER TABLE Menu ADD COLUMN desc_combo TEXT DEFAULT ''")
+            cursor.execute("ALTER TABLE Menu ADD COLUMN precio_combo REAL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass
+
 
         # Tabla Metodos_Pago
         cursor.execute("""
@@ -318,22 +330,22 @@ def get_available_menu(db_path: str = DB_FILE) -> List[Dict[str, Any]]:
         cursor.execute("SELECT * FROM Menu WHERE disponible = 1 ORDER BY categoria, id")
         return [dict(row) for row in cursor.fetchall()]
 
-def add_menu_item(nombre: str, precio: float, ingredientes: str = "", categoria: str = "General", disponible: bool = True, db_path: str = DB_FILE) -> int:
+def add_menu_item(nombre: str, precio: float, ingredientes: str = "", categoria: str = "General", disponible: bool = True, tiene_combo: bool = False, desc_combo: str = "", precio_combo: float = 0, db_path: str = DB_FILE) -> int:
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO Menu (nombre, precio, ingredientes, categoria, disponible) VALUES (?, ?, ?, ?, ?)",
-            (nombre, precio, ingredientes, categoria, 1 if disponible else 0)
+            "INSERT INTO Menu (nombre, precio, ingredientes, categoria, disponible, tiene_combo, desc_combo, precio_combo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (nombre, precio, ingredientes, categoria, 1 if disponible else 0, 1 if tiene_combo else 0, desc_combo, precio_combo)
         )
         conn.commit()
         return cursor.lastrowid
 
-def update_menu_item(item_id: int, nombre: str, precio: float, ingredientes: str, categoria: str, disponible: bool, db_path: str = DB_FILE) -> bool:
+def update_menu_item(item_id: int, nombre: str, precio: float, ingredientes: str, categoria: str, disponible: bool, tiene_combo: bool = False, desc_combo: str = "", precio_combo: float = 0, db_path: str = DB_FILE) -> bool:
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE Menu SET nombre = ?, precio = ?, ingredientes = ?, categoria = ?, disponible = ? WHERE id = ?",
-            (nombre, precio, ingredientes, categoria, 1 if disponible else 0, item_id)
+            "UPDATE Menu SET nombre = ?, precio = ?, ingredientes = ?, categoria = ?, disponible = ?, tiene_combo = ?, desc_combo = ?, precio_combo = ? WHERE id = ?",
+            (nombre, precio, ingredientes, categoria, 1 if disponible else 0, 1 if tiene_combo else 0, desc_combo, precio_combo, item_id)
         )
         conn.commit()
         return cursor.rowcount > 0
@@ -422,6 +434,8 @@ def add_to_cart(
     if menu_item:
         official_name = menu_item["nombre"]
         official_price = float(menu_item["precio"])
+        if menu_item.get("tiene_combo") and "combo" in notas.lower():
+            official_price = float(menu_item["precio_combo"])
     else:
         official_name = nombre_producto.strip()
         if precio_unitario is not None:
@@ -529,6 +543,17 @@ def get_cart_summary_and_total(id_cliente: str, db_path: str = DB_FILE) -> Tuple
         total += subtotal
         nota_str = f" ({it['notas']})" if it.get("notas") else ""
         item_summaries.append(f"{it['cantidad']}x {it['nombre_producto']}{nota_str} (${subtotal:,.0f})")
+
+    # Sumar domicilio si está activo
+    dom_activo = get_config("domicilio_activo", "0", db_path=db_path) == "1"
+    if dom_activo:
+        try:
+            dom_precio = float(get_config("domicilio_precio", "0", db_path=db_path))
+            if dom_precio > 0:
+                total += dom_precio
+                item_summaries.append(f"Domicilio (${dom_precio:,.0f})")
+        except ValueError:
+            pass
 
     summary_str = ", ".join(item_summaries)
     return summary_str, total, items
@@ -835,9 +860,33 @@ def purge_completed_orders(db_path: str = DB_FILE) -> int:
     return deleted
 
 def optimize_db(db_path: str = DB_FILE):
-    """Ejecuta VACUUM para liberar espacio no utilizado."""
     try:
         with get_connection(db_path) as conn:
             conn.execute("VACUUM;")
     except Exception:
         pass
+
+# ==================== CONFIGURACIÓN ====================
+
+def get_config(clave: str, default_value: str = "", db_path: str = DB_FILE) -> str:
+    """Obtiene un valor de configuración de la tabla App_Config."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT valor FROM App_Config WHERE clave = ?", (clave,))
+        row = cursor.fetchone()
+        return row["valor"] if row else default_value
+
+def set_config(clave: str, valor: str, db_path: str = DB_FILE) -> bool:
+    """Guarda o actualiza un valor de configuración en App_Config."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO App_Config (clave, valor)
+            VALUES (?, ?)
+            ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor
+            """,
+            (clave, valor)
+        )
+        conn.commit()
+        return cursor.rowcount > 0

@@ -82,6 +82,8 @@ class AIService:
             for item in items:
                 ing = f" ({item['ingredientes']})" if item.get('ingredientes') else ""
                 lines.append(f"- {item['nombre']}: ${item['precio']:,.0f} COP{ing}")
+                if item.get("tiene_combo"):
+                    lines.append(f"  └ En combo ({item.get('desc_combo', '')}): ${item.get('precio_combo', 0):,.0f} COP")
             blocks.append("\n".join(lines))
         return "\n\n".join(blocks)
 
@@ -116,7 +118,20 @@ class AIService:
             nota_str = f" ({it['notas']})" if it.get("notas") else ""
             lines.append(f"- {it['cantidad']}x {it['nombre_producto']}{nota_str} (${subtotal:,.0f} COP)")
         
-        lines.append(f"Total a pagar: ${total:,.0f} COP")
+        lines.append(f"Total a pagar (Subtotal): ${total:,.0f} COP")
+        
+        # Añadir domicilio si está activo
+        dom_activo = database.get_config("domicilio_activo", "0", db_path=db_path) == "1"
+        if dom_activo:
+            try:
+                dom_precio = float(database.get_config("domicilio_precio", "0", db_path=db_path))
+                if dom_precio > 0:
+                    lines.append(f"- Domicilio: ${dom_precio:,.0f} COP")
+                    total += dom_precio
+            except ValueError:
+                pass
+        
+        lines.append(f"TOTAL FINAL (Incluye domicilio si aplica): ${total:,.0f} COP")
         return "\n".join(lines)
 
     def build_system_prompt(self, id_cliente: Optional[str] = None, db_path: str = database.DB_FILE) -> str:
@@ -139,22 +154,46 @@ class AIService:
         pm_change_str = ", ".join(pm_change) if pm_change else "Efectivo"
         pm_agotados_str = ", ".join(pm_agotados) if pm_agotados else "Ninguno"
 
+        dom_activo = database.get_config("domicilio_activo", "0", db_path) == "1"
+        if dom_activo:
+            try:
+                dom_precio = float(database.get_config("domicilio_precio", "0", db_path))
+            except ValueError:
+                dom_precio = 0.0
+            ejemplo_cierre = f'''Tú: "Perfecto. Aquí tienes el resumen de tu pedido:
+- 1x Hamburguesa Clásica ($18,000 COP)
+- Domicilio (${dom_precio:,.0f} COP)
+El total final es de ${18000 + dom_precio:,.0f} COP. ¿A qué dirección te enviamos el pedido?"'''
+        else:
+            ejemplo_cierre = '''Tú: "Perfecto. Aquí tienes el resumen de tu pedido:
+- 1x Hamburguesa Clásica ($18,000 COP)
+El total final es de $18,000 COP. ¿A qué dirección te enviamos el pedido?"'''
+
+        menu_format = database.get_config("menu_format", "texto", db_path)
+        menu_link = database.get_config("menu_link", "", db_path)
+        
+        if menu_format == "link" and menu_link.strip():
+            regla_mostrar_menu = f"""9. MOSTRAR MENÚ: Si el cliente pide ver el menú, envíale únicamente el siguiente enlace: {menu_link}. Adicionalmente, si hay productos en la LISTA DE AGOTADOS, menciónalos brevemente diciendo algo como "Por el momento no tenemos disponible: [productos]". Si no hay productos agotados (la lista dice "Ninguno"), no menciones nada sobre agotados."""
+        else:
+            regla_mostrar_menu = """9. MOSTRAR MENÚ: Si el cliente pide ver el menú, NUNCA lo resumas ni envíes solo las categorías. Debes enviarlo COMPLETO, exactamente con los mismos nombres, precios e ingredientes como se muestra en la sección MENÚ DISPONIBLE HOY."""
+
         system_prompt = f"""Eres un empleado serio que toma pedidos por WhatsApp de forma concisa y normal, sin adornos.
 
 REGLAS DE COMPORTAMIENTO (¡CRÍTICO!):
 1. TONO: Actúa como una persona normal y seria. NO uses signos de exclamación. NO seas excesivamente complaciente ni ofrezcas comentarios innecesarios. NUNCA ofrezcas ingredientes si el cliente no los pide. NUNCA escribas "[0 COP]" al final de tus mensajes.
 2. PRECIOS: Los precios son FIJOS. NUNCA restes ni sumes dinero por tu cuenta.
 3. INGREDIENTES: Si piden quitar un ingrediente que el plato no tiene, aclárale amablemente que no trae eso originalmente y tómale el pedido.
-4. DIRECCIÓN Y PAGO: NUNCA pidas todo de una vez. Cuando termine de pedir, dale el total y pide dirección. Luego de la dirección, pregunta método de pago. 
+4. DIRECCIÓN Y PAGO: NUNCA pidas todo de una vez. Cuando el cliente termine de pedir, envíale un DESGLOSE DETALLADO de todo lo que pidió (ítem por ítem con su valor, incluyendo el valor del Domicilio si aplica) y el TOTAL FINAL, y a continuación pídele su dirección. Luego de la dirección, pregunta método de pago.
    - Métodos ACEPTADOS hoy: {pm_str}. 
    - Métodos DESACTIVADOS hoy: {pm_agotados_str}.
    Si elige un método DESACTIVADO o que no existe, dile que no está disponible hoy. 
    - Métodos que REQUIEREN CAMBIO: {pm_change_str}. Si elige uno de estos, pregúntale con cuánto paga. ¡OJO! Debes verificar que el monto con el que va a pagar sea MAYOR O IGUAL al total de la cuenta. Si es menor (ej. la cuenta es $9000 y te dice que paga con "5"), dile que el monto es insuficiente. Si elige un método que NO requiere cambio, simplemente dile que el domiciliario recibirá el pago en su casa.
 5. CONFIRMACIÓN FINAL: Solo cuando el cliente te haya dado 1) Su dirección real 2) El método de pago real y 3) Con cuánto paga (solo si el método requiere cambio, si no requiere asume N/A), emites la etiqueta final de NUEVO_PEDIDO.
 6. PRODUCTOS DEL MENÚ: SOLO PUEDES AGREGAR PRODUCTOS QUE ESTÉN EN EL MENÚ DISPONIBLE. Si el cliente pide algo que está en PRODUCTOS AGOTADOS, dile que de momento no tienen eso y que para mañana lo van a conseguir. Si pide algo que no está ni en disponibles ni agotados, dile que no venden ese tipo de cosas. NUNCA inventes productos ni asumas sustituciones (ej. si piden el "Producto A" y no lo tienes, no asumas que quieren el "Producto B").
-7. CIERRE DE PEDIDO: Si el cliente intenta cerrar el pedido (ej. dice "nada más") pero el carrito está vacío (Total: $0 COP), NO pidas dirección. Dile al cliente que su carrito está vacío y pregúntale qué desea agregar.
+7. CIERRE DE PEDIDO: Si el cliente intenta cerrar el pedido (ej. dice "nada más") pero el carrito está vacío (Total: $0 COP), NO pidas dirección. Dile al cliente que su carrito está vacío y pregúntale qué desea agregar. Si NO está vacío, envíale el desglose detallado con el domicilio y el total antes de pedir la dirección.
 8. LISTA DE AGOTADOS: NUNCA leas la lista entera de productos agotados al cliente ni se la envíes de forma proactiva. Solo úsala para saber qué responder si te piden un producto en específico que está en esa lista.
-9. MOSTRAR MENÚ: Si el cliente pide ver el menú, NUNCA lo resumas ni envíes solo las categorías. Debes enviarlo COMPLETO, exactamente con los mismos nombres, precios e ingredientes como se muestra en la sección MENÚ DISPONIBLE HOY.
+10. COMBOS: Si un cliente pide un producto que tiene disponible una versión 'en combo', pero no especifica si lo quiere sencillo o en combo, DEBES preguntarle y confirmar cuál de los dos prefiere antes de agregarlo al pedido.
+{regla_mostrar_menu}
 
 === MENÚ DISPONIBLE HOY ===
 {menu_completo}
@@ -174,13 +213,19 @@ Debes colocar las etiquetas al final de tu mensaje de forma invisible para el us
 EJEMPLOS DE CONVERSACIÓN (¡IMÍTALOS EXACTAMENTE!):
 
 Cliente: "dame el Plato 1 sin cebolla y el Agotado 5"
-Tú: "El Plato 1 trae cebolla, pero te lo anoto sin cebolla. Sobre el Agotado 5, de momento no lo tenemos y para mañana lo vamos a conseguir. Ya agregué el Plato 1. ¿Deseas pedir algo más? [AGREGAR: Plato 1 | 1 | sin cebolla]"
+Tú: "Perfecto te anoto el Plato 1 sin cebolla. Sobre el Agotado 5, de momento no lo tenemos y para mañana lo vamos a conseguir. ¿Deseas pedir algo más? [AGREGAR: Plato 1 | 1 | sin cebolla]"
 
 Cliente: "y dame un carro"
 Tú: "No vendemos carros. Solo tenemos lo que está en nuestro menú. ¿Deseas pedir algo más?"
 
+Cliente: "dame una Hamburguesa Clásica" (Asumiendo que tiene opción en combo)
+Tú: "¿La Hamburguesa Clásica la deseas sencilla o en combo?"
+
+Cliente: "en combo"
+Tú: "Perfecto. ¿Deseas pedir algo más? [AGREGAR: Hamburguesa Clásica | 1 | en combo]"
+
 Cliente: "eso seria todo"
-Tú: "Perfecto. El total es de $27,000 COP. ¿A qué dirección te enviamos el pedido?"
+{ejemplo_cierre}
 
 Cliente: "a la [Dirección que dio el cliente]"
 Tú: "Anotado. ¿Cómo prefieres pagar? Tenemos {pm_str}."

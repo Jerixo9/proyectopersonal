@@ -145,14 +145,14 @@ class MenuItemDialog(ctk.CTkToplevel):
         
         is_edit = item_data is not None
         self.title("Editar Plato" if is_edit else "Agregar Nuevo Plato")
-        self.geometry("450x490")
+        self.geometry("450x600")
         self.resizable(False, False)
         self.attributes("-topmost", True)
         
         self.update_idletasks()
         x = (self.winfo_screenwidth() // 2) - 225
-        y = (self.winfo_screenheight() // 2) - 245
-        self.geometry(f"450x490+{x}+{y}")
+        y = (self.winfo_screenheight() // 2) - 300
+        self.geometry(f"450x600+{x}+{y}")
         
         self.configure(fg_color=("#1f2430", "#141721"))
         self._build_ui()
@@ -164,7 +164,7 @@ class MenuItemDialog(ctk.CTkToplevel):
             font=ctk.CTkFont(size=16, weight="bold"),
             text_color="#ffffff"
         )
-        lbl_title.pack(pady=(20, 15))
+        lbl_title.pack(pady=(15, 10))
 
         form = ctk.CTkFrame(self, fg_color="transparent")
         form.pack(fill="both", expand=True, padx=25)
@@ -172,13 +172,13 @@ class MenuItemDialog(ctk.CTkToplevel):
         # Nombre
         ctk.CTkLabel(form, text="Nombre del Plato *", font=ctk.CTkFont(size=12, weight="bold")).pack(anchor="w", pady=(0, 2))
         self.entry_nombre = ctk.CTkEntry(form, placeholder_text="Ej: Hamburguesa Especial", height=35)
-        self.entry_nombre.pack(fill="x", pady=(0, 10))
+        self.entry_nombre.pack(fill="x", pady=(0, 5))
         if self.item_data:
             self.entry_nombre.insert(0, self.item_data.get("nombre", ""))
 
         # Precio y Categoría en fila
         row_pc = ctk.CTkFrame(form, fg_color="transparent")
-        row_pc.pack(fill="x", pady=(0, 10))
+        row_pc.pack(fill="x", pady=(0, 5))
 
         col_p = ctk.CTkFrame(row_pc, fg_color="transparent")
         col_p.pack(side="left", fill="x", expand=True, padx=(0, 5))
@@ -209,14 +209,40 @@ class MenuItemDialog(ctk.CTkToplevel):
 
         # Ingredientes / Descripción
         ctk.CTkLabel(form, text="Ingredientes / Descripción", font=ctk.CTkFont(size=12, weight="bold")).pack(anchor="w", pady=(0, 2))
-        self.txt_ingredientes = ctk.CTkTextbox(form, height=80)
-        self.txt_ingredientes.pack(fill="x", pady=(0, 12))
+        self.txt_ingredientes = ctk.CTkTextbox(form, height=60)
+        self.txt_ingredientes.pack(fill="x", pady=(0, 5))
         if self.item_data and self.item_data.get("ingredientes"):
             self.txt_ingredientes.insert("1.0", self.item_data.get("ingredientes"))
 
+        # Opción Combo
+        self.sw_combo = ctk.CTkSwitch(form, text="Habilitar opción en Combo", command=self._toggle_combo)
+        self.sw_combo.pack(anchor="w", pady=(5, 5))
+
+        self.combo_frame = ctk.CTkFrame(form, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        self.combo_frame.pack(fill="x", pady=(0, 5))
+
+        row_c1 = ctk.CTkFrame(self.combo_frame, fg_color="transparent")
+        row_c1.pack(fill="x", padx=10, pady=(10, 5))
+        ctk.CTkLabel(row_c1, text="Descripción Combo", font=ctk.CTkFont(size=12)).pack(side="left", padx=(0, 10))
+        self.entry_desc_combo = ctk.CTkEntry(row_c1, placeholder_text="Ej: Papas y Gaseosa")
+        self.entry_desc_combo.pack(side="left", fill="x", expand=True)
+
+        row_c2 = ctk.CTkFrame(self.combo_frame, fg_color="transparent")
+        row_c2.pack(fill="x", padx=10, pady=(0, 10))
+        ctk.CTkLabel(row_c2, text="Precio Combo ($)", font=ctk.CTkFont(size=12)).pack(side="left", padx=(0, 15))
+        self.entry_precio_combo = ctk.CTkEntry(row_c2, placeholder_text="25000")
+        self.entry_precio_combo.pack(side="left", fill="x", expand=True)
+
+        if self.item_data and self.item_data.get("tiene_combo", 0):
+            self.sw_combo.select()
+            self.entry_desc_combo.insert(0, self.item_data.get("desc_combo", ""))
+            self.entry_precio_combo.insert(0, str(int(self.item_data.get("precio_combo", 0))))
+        else:
+            self._toggle_combo() # para deshabilitar si no tiene
+
         # Switch Disponible
         self.sw_disponible = ctk.CTkSwitch(form, text="Disponible para la venta (La IA lo ofrecerá)")
-        self.sw_disponible.pack(anchor="w", pady=(0, 15))
+        self.sw_disponible.pack(anchor="w", pady=(5, 10))
         if self.item_data:
             if self.item_data.get("disponible", 1):
                 self.sw_disponible.select()
@@ -227,7 +253,7 @@ class MenuItemDialog(ctk.CTkToplevel):
 
         # Botones
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=25, pady=(0, 20))
+        btn_frame.pack(fill="x", padx=25, pady=(0, 15))
 
         btn_save = ctk.CTkButton(
             btn_frame,
@@ -250,12 +276,23 @@ class MenuItemDialog(ctk.CTkToplevel):
         )
         btn_cancel.pack(side="right", fill="x", expand=True, padx=(5, 0))
 
+    def _toggle_combo(self):
+        is_on = self.sw_combo.get()
+        state = "normal" if is_on else "disabled"
+        self.entry_desc_combo.configure(state=state)
+        self.entry_precio_combo.configure(state=state)
+
     def _save(self):
         nombre = self.entry_nombre.get().strip()
         precio_str = self.entry_precio.get().strip()
         ingredientes = self.txt_ingredientes.get("1.0", "end-1c").strip()
         categoria = self.combo_cat.get()
         disponible = bool(self.sw_disponible.get())
+        
+        tiene_combo = bool(self.sw_combo.get())
+        desc_combo = self.entry_desc_combo.get().strip()
+        precio_combo_str = self.entry_precio_combo.get().strip()
+        precio_combo = 0.0
 
         if not nombre:
             messagebox.showwarning("Campo requerido", "Por favor ingresa el nombre del plato.")
@@ -267,6 +304,16 @@ class MenuItemDialog(ctk.CTkToplevel):
             messagebox.showwarning("Precio inválido", "Ingresa un valor numérico para el precio.")
             return
 
+        if tiene_combo:
+            if not desc_combo:
+                messagebox.showwarning("Campo requerido", "Si habilitas combo, debes agregar una descripción.")
+                return
+            try:
+                precio_combo = float(precio_combo_str)
+            except ValueError:
+                messagebox.showwarning("Precio inválido", "Ingresa un valor numérico para el precio en combo.")
+                return
+
         if self.item_data:
             database.update_menu_item(
                 item_id=self.item_data["id"],
@@ -274,7 +321,10 @@ class MenuItemDialog(ctk.CTkToplevel):
                 precio=precio,
                 ingredientes=ingredientes,
                 categoria=categoria,
-                disponible=disponible
+                disponible=disponible,
+                tiene_combo=tiene_combo,
+                desc_combo=desc_combo,
+                precio_combo=precio_combo
             )
         else:
             database.add_menu_item(
@@ -282,7 +332,10 @@ class MenuItemDialog(ctk.CTkToplevel):
                 precio=precio,
                 ingredientes=ingredientes,
                 categoria=categoria,
-                disponible=disponible
+                disponible=disponible,
+                tiene_combo=tiene_combo,
+                desc_combo=desc_combo,
+                precio_combo=precio_combo
             )
 
         if self.on_save:
@@ -341,9 +394,37 @@ class MenuTab(ctk.CTkFrame):
         )
         btn_refresh.pack(side="right")
 
+        # Barra de Configuración de Envío de Menú
+        config_frame = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        config_frame.pack(fill="x", padx=15, pady=(0, 10))
+        
+        lbl_cfg = ctk.CTkLabel(config_frame, text="Formato de envío del menú (IA):", font=ctk.CTkFont(size=13, weight="bold"))
+        lbl_cfg.pack(side="left", padx=15, pady=10)
+        
+        self.menu_format_var = ctk.StringVar(value=database.get_config("menu_format", "texto"))
+        
+        rb_text = ctk.CTkRadioButton(config_frame, text="Texto Completo", variable=self.menu_format_var, value="texto", command=self._save_menu_config)
+        rb_text.pack(side="left", padx=10)
+        
+        rb_link = ctk.CTkRadioButton(config_frame, text="Enlace (Link)", variable=self.menu_format_var, value="link", command=self._save_menu_config)
+        rb_link.pack(side="left", padx=10)
+        
+        lbl_link = ctk.CTkLabel(config_frame, text="Link del menú:")
+        lbl_link.pack(side="left", padx=(15, 5))
+        
+        self.entry_link = ctk.CTkEntry(config_frame, placeholder_text="https://mi-menu.com...", width=200)
+        self.entry_link.pack(side="left", padx=5)
+        self.entry_link.insert(0, database.get_config("menu_link", ""))
+        self.entry_link.bind("<FocusOut>", lambda e: self._save_menu_config())
+        self.entry_link.bind("<Return>", lambda e: self._save_menu_config())
+
         # Lista de Platos con Scroll
         self.scroll_menu = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll_menu.pack(fill="both", expand=True, padx=15, pady=(0, 10))
+
+    def _save_menu_config(self):
+        database.set_config("menu_format", self.menu_format_var.get())
+        database.set_config("menu_link", self.entry_link.get().strip())
 
     def refresh_menu(self):
         for widget in self.scroll_menu.winfo_children():
@@ -422,6 +503,18 @@ class MenuTab(ctk.CTkFrame):
                 justify="left"
             )
             lbl_ing.pack(anchor="w", pady=(2, 0))
+
+        if item.get("tiene_combo"):
+            combo_text = f"🍟 En Combo: {item.get('desc_combo', '')} | ${item.get('precio_combo', 0):,.0f}"
+            lbl_combo = ctk.CTkLabel(
+                info_col,
+                text=combo_text,
+                font=ctk.CTkFont(size=12, weight="bold"),
+                text_color="#f59e0b",
+                wraplength=550,
+                justify="left"
+            )
+            lbl_combo.pack(anchor="w", pady=(2, 0))
 
         # Columna Derecha: Switch Disponible y Botones
         actions_col = ctk.CTkFrame(main_row, fg_color="transparent")
