@@ -34,6 +34,12 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -87,33 +93,73 @@ public class MainFragment extends Fragment implements DialogActionListener {
     private com.google.android.material.button.MaterialButton btnTestPcConnection;
     private TextView tvPcConnectionStatus;
 
-    private void testPcConnection() {
+    private OkHttpClient webSocketClient;
+    private WebSocket statusWebSocket;
+
+    private void connectStatusWebSocket() {
         if (tvPcConnectionStatus == null) return;
-        tvPcConnectionStatus.setText("Probando conexión...");
+        tvPcConnectionStatus.setText("Conectando en tiempo real...");
         tvPcConnectionStatus.setTextColor(0xFF9CA3AF);
-        
-        String url = preferencesManager.getPcServerUrl();
-        com.parishod.watomatic.network.PcServerService.getInstance().sendHeartbeat(url, "com.whatsapp", new com.parishod.watomatic.network.PcServerService.HeartbeatCallback() {
+
+        if (webSocketClient == null) {
+            webSocketClient = new OkHttpClient.Builder()
+                    .pingInterval(10, java.util.concurrent.TimeUnit.SECONDS)
+                    .build();
+        }
+
+        if (statusWebSocket != null) {
+            statusWebSocket.cancel();
+        }
+
+        String baseUrl = preferencesManager.getPcServerUrl();
+        if (baseUrl == null || baseUrl.isEmpty()) baseUrl = "http://192.168.1.100:8000/";
+        if (!baseUrl.endsWith("/")) baseUrl += "/";
+        String wsUrl = baseUrl.replace("http://", "ws://").replace("https://", "wss://") + "ws/status";
+
+        Request request = new Request.Builder().url(wsUrl).build();
+        statusWebSocket = webSocketClient.newWebSocket(request, new WebSocketListener() {
             @Override
-            public void onSuccess(boolean isOnline) {
+            public void onOpen(@NonNull WebSocket webSocket, @NonNull okhttp3.Response response) {
                 if (isAdded() && getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        tvPcConnectionStatus.setText("🟢 Conectado con éxito a la PC");
+                        tvPcConnectionStatus.setText("🟢 Conectado con éxito a la PC (Tiempo Real)");
                         tvPcConnectionStatus.setTextColor(0xFF10B981);
                     });
                 }
             }
 
             @Override
-            public void onError(String errorMessage) {
-                if (isAdded() && getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        tvPcConnectionStatus.setText("🔴 Sin conexión al PC (Verifica IP)");
-                        tvPcConnectionStatus.setTextColor(0xFFEF4444);
-                    });
-                }
+            public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                updateDisconnectedUI();
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable okhttp3.Response response) {
+                updateDisconnectedUI();
             }
         });
+    }
+
+    private void updateDisconnectedUI() {
+        if (isAdded() && getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (tvPcConnectionStatus != null) {
+                    tvPcConnectionStatus.setText("🔴 Sin conexión al PC (Verifica IP)");
+                    tvPcConnectionStatus.setTextColor(0xFFEF4444);
+                }
+            });
+        }
+    }
+
+    private void disconnectStatusWebSocket() {
+        if (statusWebSocket != null) {
+            statusWebSocket.close(1000, "App in background");
+            statusWebSocket = null;
+        }
+    }
+
+    private void testPcConnection() {
+        connectStatusWebSocket();
     }
 
     private int gitHubReleaseNotesId = -1;
@@ -427,6 +473,14 @@ public class MainFragment extends Fragment implements DialogActionListener {
         updateMessageType();
         updateCooldownFilterDisplay();
         showAppRatingPopup();
+        
+        connectStatusWebSocket();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        disconnectStatusWebSocket();
     }
 
     private void updateContactsSelectorState(){

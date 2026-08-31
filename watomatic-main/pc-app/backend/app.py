@@ -3,11 +3,12 @@ import asyncio
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Callable
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend import database
 from backend import network_utils
+from backend import crypto_utils
 from backend.ai_service import AIService
 from backend.sound_player import play_order_alert_sound
 
@@ -72,6 +73,10 @@ app.add_middleware(
 )
 
 # Modelos Pydantic para validación
+class EncryptedRequest(BaseModel):
+    iv: str
+    data: str
+
 class WebhookRequest(BaseModel):
     sender: str
     message: str
@@ -114,12 +119,28 @@ def read_root():
         "local_ip": network_utils.get_local_ip()
     }
 
+@app.websocket("/ws/status")
+async def websocket_status(websocket: WebSocket):
+    await websocket.accept()
+    global heartbeat_state
+    try:
+        while True:
+            # Mantener la conexión abierta y escuchar (aunque no esperamos mensajes)
+            data = await websocket.receive_text()
+            # Opcional: actualizar el estado basado en el websocket
+    except WebSocketDisconnect:
+        pass
+
 @app.post("/api/heartbeat")
-def receive_heartbeat(req: HeartbeatRequest):
+def receive_heartbeat(enc_req: EncryptedRequest):
     """Recibe el ping periódico de la app móvil Android."""
+    req_dict = crypto_utils.decrypt_payload(enc_req.model_dump())
+    if not req_dict:
+        raise HTTPException(status_code=400, detail="Invalid encrypted payload")
+
     heartbeat_state["last_ping_time"] = time.time()
-    heartbeat_state["device_name"] = req.device_name or "Android"
-    heartbeat_state["package_name"] = req.package or "com.whatsapp"
+    heartbeat_state["device_name"] = req_dict.get("device_name", "Android")
+    heartbeat_state["package_name"] = req_dict.get("package", "com.whatsapp")
     
     notify_ui("heartbeat", {
         "status": "connected",
@@ -127,23 +148,28 @@ def receive_heartbeat(req: HeartbeatRequest):
         "timestamp": heartbeat_state["last_ping_time"]
     })
     
-    return {
+    resp = {
         "status": "ok",
         "received_at": datetime.now().isoformat(),
         "phone_connected": True
     }
+    return crypto_utils.encrypt_payload(resp)
 
 # Diccionario para gestionar el debouncing por usuario
 user_debouncers: Dict[str, Dict[str, Any]] = {}
 
 @app.post("/api/webhook")
-async def receive_incoming_message(req: WebhookRequest, background_tasks: BackgroundTasks):
+async def receive_incoming_message(enc_req: EncryptedRequest, background_tasks: BackgroundTasks):
     """
     Recibe el mensaje entrante desde la app Android (Watomatic).
     Usa debouncing de 10 segundos para consolidar mensajes rápidos del mismo usuario.
     """
-    sender = req.sender.strip()
-    message = req.message.strip()
+    req_dict = crypto_utils.decrypt_payload(enc_req.model_dump())
+    if not req_dict:
+        raise HTTPException(status_code=400, detail="Invalid encrypted payload")
+        
+    sender = req_dict.get("sender", "").strip()
+    message = req_dict.get("message", "").strip()
     
     if not sender or not message:
         raise HTTPException(status_code=400, detail="Sender y message no pueden estar vacíos.")
@@ -222,7 +248,8 @@ async def receive_incoming_message(req: WebhookRequest, background_tasks: Backgr
 
     batch["timer_task"] = asyncio.create_task(process_after_delay(batch))
 
-    return await new_future
+    result = await new_future
+    return crypto_utils.encrypt_payload(result)
 
 @app.get("/api/status")
 def get_system_status():

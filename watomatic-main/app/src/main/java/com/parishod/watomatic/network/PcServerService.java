@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.parishod.watomatic.model.utils.AESGCMUtils;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -58,7 +60,14 @@ public class PcServerService {
             json.put("message", message);
             json.put("package", packageName != null ? packageName : "com.whatsapp");
 
-            RequestBody body = RequestBody.create(json.toString(), JSON);
+            JSONObject encryptedJson = AESGCMUtils.encryptPayload(json);
+            if (encryptedJson == null) {
+                Log.e(TAG, "Failed to encrypt webhook payload");
+                if (callback != null) callback.onError("Encryption failed");
+                return;
+            }
+
+            RequestBody body = RequestBody.create(encryptedJson.toString(), JSON);
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
@@ -84,7 +93,15 @@ public class PcServerService {
 
                     try {
                         String respBody = response.body() != null ? response.body().string() : "";
-                        JSONObject respJson = new JSONObject(respBody);
+                        JSONObject respJsonEncrypted = new JSONObject(respBody);
+                        JSONObject respJson = AESGCMUtils.decryptPayload(respJsonEncrypted);
+                        
+                        if (respJson == null) {
+                            Log.e(TAG, "Failed to decrypt webhook response");
+                            if (callback != null) callback.onError("Decryption failed");
+                            return;
+                        }
+
                         String reply = respJson.optString("reply", "");
                         boolean orderCreated = respJson.optBoolean("order_created", false);
                         
@@ -118,7 +135,14 @@ public class PcServerService {
             json.put("package", packageName != null ? packageName : "com.whatsapp");
             json.put("status", "active");
 
-            RequestBody body = RequestBody.create(json.toString(), JSON);
+            JSONObject encryptedJson = AESGCMUtils.encryptPayload(json);
+            if (encryptedJson == null) {
+                Log.e(TAG, "Failed to encrypt heartbeat payload");
+                if (callback != null) callback.onError("Encryption failed");
+                return;
+            }
+
+            RequestBody body = RequestBody.create(encryptedJson.toString(), JSON);
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
@@ -138,7 +162,18 @@ public class PcServerService {
                     boolean success = response.isSuccessful();
                     if (callback != null) {
                         if (success) {
-                            callback.onSuccess(true);
+                            try {
+                                String respBody = response.body() != null ? response.body().string() : "";
+                                JSONObject respJsonEncrypted = new JSONObject(respBody);
+                                JSONObject respJson = AESGCMUtils.decryptPayload(respJsonEncrypted);
+                                if (respJson != null && respJson.optString("status").equals("ok")) {
+                                    callback.onSuccess(true);
+                                } else {
+                                    callback.onError("Decryption failed or status not ok");
+                                }
+                            } catch (Exception e) {
+                                callback.onError("Parse error: " + e.getMessage());
+                            }
                         } else {
                             callback.onError("Status: " + response.code());
                         }
