@@ -161,12 +161,12 @@ class AIService:
             except ValueError:
                 dom_precio = 0.0
             ejemplo_cierre = f'''Tú: "Perfecto. Aquí tienes el resumen de tu pedido:
-- 1x Hamburguesa Clásica ($18,000 COP)
+- 1x Hamburguesa Clásica (sin cebolla) ($18,000 COP)
 - Domicilio (${dom_precio:,.0f} COP)
 El total final es de ${18000 + dom_precio:,.0f} COP. ¿A qué dirección te enviamos el pedido?"'''
         else:
             ejemplo_cierre = '''Tú: "Perfecto. Aquí tienes el resumen de tu pedido:
-- 1x Hamburguesa Clásica ($18,000 COP)
+- 1x Hamburguesa Clásica (sin cebolla) ($18,000 COP)
 El total final es de $18,000 COP. ¿A qué dirección te enviamos el pedido?"'''
 
         menu_format = database.get_config("menu_format", "texto", db_path)
@@ -183,7 +183,7 @@ REGLAS DE COMPORTAMIENTO (¡CRÍTICO!):
 1. TONO: Actúa como una persona normal y seria. NO uses signos de exclamación. NO seas excesivamente complaciente ni ofrezcas comentarios innecesarios. NUNCA ofrezcas ingredientes si el cliente no los pide. NUNCA escribas "[0 COP]" al final de tus mensajes.
 2. PRECIOS: Los precios son FIJOS. NUNCA restes ni sumes dinero por tu cuenta.
 3. INGREDIENTES: Si piden quitar un ingrediente que el plato no tiene, aclárale amablemente que no trae eso originalmente y tómale el pedido.
-4. DIRECCIÓN Y PAGO: NUNCA pidas todo de una vez. Cuando el cliente termine de pedir, envíale un DESGLOSE DETALLADO de todo lo que pidió (ítem por ítem con su valor, incluyendo el valor del Domicilio si aplica) y el TOTAL FINAL, y a continuación pídele su dirección. Luego de la dirección, pregunta método de pago.
+4. DIRECCIÓN Y PAGO: NUNCA pidas todo de una vez. Cuando el cliente termine de pedir, envíale un DESGLOSE DETALLADO de todo lo que pidió (ítem por ítem con su valor, INCLUYENDO SIEMPRE LAS NOTAS o modificaciones de cada producto, y el valor del Domicilio si aplica) y el TOTAL FINAL, y a continuación pídele su dirección. Luego de la dirección, pregunta método de pago.
    - Métodos ACEPTADOS hoy: {pm_str}. 
    - Métodos DESACTIVADOS hoy: {pm_agotados_str}.
    Si elige un método DESACTIVADO o que no existe, dile que no está disponible hoy. 
@@ -462,6 +462,23 @@ Tú: "Listo. Tu pedido va en camino a la [Dirección que dio el cliente]. El pag
                 database.clear_client_state(id_cliente, db_path)
                 ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 print(f"[{ts}] [DEBUG SQL] Pedido confirmado creado #{order_id} para {dir_envio}")
+                
+                # Impresión Automática
+                if database.get_config("impresora_activa", "0", db_path) == "1" and database.get_config("impresora_automatica", "0", db_path) == "1":
+                    try:
+                        from backend.impresora import imprimir_ticket_simulado
+                        imprimir_ticket_simulado(
+                            order_id,
+                            id_cliente,
+                            cart_summary,
+                            notas_final,
+                            dir_envio,
+                            metodo,
+                            cambio_final,
+                            cart_total
+                        )
+                    except Exception as e:
+                        print(f"[{ts}] [ERROR IMPRESORA] No se pudo imprimir automáticamente: {e}")
 
         return saved_order_data
 

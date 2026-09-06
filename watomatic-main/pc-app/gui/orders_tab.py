@@ -230,6 +230,17 @@ class OrdersTab(ctk.CTkFrame):
 
         oid = order["id"]
 
+        btn_print = ctk.CTkButton(
+            actions_row,
+            text="🖨️ Imprimir",
+            width=100,
+            height=30,
+            fg_color="#8b5cf6",
+            hover_color="#7c3aed",
+            command=lambda o=order: self._print_order(o)
+        )
+        btn_print.pack(side="right", padx=(8, 0))
+
         if st == "Pendiente":
             btn_prep = ctk.CTkButton(
                 actions_row,
@@ -318,3 +329,23 @@ class OrdersTab(ctk.CTkFrame):
         if messagebox.askyesno("Confirmar eliminación", f"¿Deseas eliminar el pedido #{order_id}?"):
             database.delete_order(order_id)
             self.refresh_orders()
+
+    def _print_order(self, order: dict):
+        if database.get_config("impresora_activa", "0") != "1":
+            messagebox.showwarning("Impresora Desactivada", "La generación de recibos está desactivada en la pestaña de Configuración.")
+            return
+            
+        try:
+            from backend.impresora import imprimir_ticket_simulado
+            imprimir_ticket_simulado(
+                order["id"],
+                order["id_cliente"],
+                order["resumen_pedido"],
+                order.get("notas_especiales", ""),
+                order["direccion"],
+                order["metodo_pago"],
+                order.get("cambio_de", "N/A"),
+                order.get("total", 0.0)
+            )
+        except Exception as e:
+            messagebox.showerror("Error de Impresora", f"No se pudo generar el recibo:\n{e}")

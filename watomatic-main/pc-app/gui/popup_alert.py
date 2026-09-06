@@ -21,6 +21,36 @@ class OrderAlertPopup(ctk.CTkToplevel):
         y = (self.winfo_screenheight() // 2) - (height // 2)
         self.geometry(f"{width}x{height}+{x}+{y}")
         
+        # Forzar el foco a la ventana actual
+        self.focus_force()
+        self.lift()
+        
+        # Intentar que Windows traiga la aplicación al frente y parpadee en la barra de tareas
+        try:
+            import ctypes
+            # Constantes: FLASHW_ALL = 3, FLASHW_TIMERNOFG = 12
+            class FLASHWINFO(ctypes.Structure):
+                _fields_ = [("cbSize", ctypes.c_uint),
+                            ("hwnd", ctypes.c_void_p),
+                            ("dwFlags", ctypes.c_uint),
+                            ("uCount", ctypes.c_uint),
+                            ("dwTimeout", ctypes.c_uint)]
+            info = FLASHWINFO()
+            info.cbSize = ctypes.sizeof(FLASHWINFO)
+            # winfo_id() en Windows da el HWND
+            info.hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
+            if not info.hwnd:
+                info.hwnd = self.winfo_id()
+            info.dwFlags = 3 | 12
+            info.uCount = 5
+            info.dwTimeout = 0
+            ctypes.windll.user32.FlashWindowEx(ctypes.byref(info))
+            
+            # Intento de forzar ventana al frente nativamente
+            ctypes.windll.user32.SetForegroundWindow(info.hwnd)
+        except Exception:
+            pass
+            
         self.configure(fg_color=("#181b22", "#0f1117"))
         self._build_ui()
 

@@ -80,7 +80,7 @@ class SettingsTab(ctk.CTkFrame):
 
         btn_save_cfg = ctk.CTkButton(
             left_box,
-            text="💾 Aplicar Cambios de IA",
+            text="💾 Aplicar Cambios",
             height=38,
             font=ctk.CTkFont(size=13, weight="bold"),
             fg_color="#6366f1",
@@ -88,6 +88,32 @@ class SettingsTab(ctk.CTkFrame):
             command=self._save_ai_config
         )
         btn_save_cfg.pack(fill="x", padx=15, pady=(0, 15))
+
+        # 3. Configuración de Impresora
+        printer_card = ctk.CTkFrame(left_box, fg_color=("#1a1e29", "#13161f"), corner_radius=10)
+        printer_card.pack(fill="x", padx=15, pady=(0, 15))
+
+        lbl_printer_title = ctk.CTkLabel(
+            printer_card,
+            text="🖨️ Impresora de Recibos (Simulada)",
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color="#a855f7"
+        )
+        lbl_printer_title.pack(anchor="w", padx=12, pady=(10, 4))
+        
+        self.sw_printer_active = ctk.CTkSwitch(printer_card, text="Permitir Generación de Recibos")
+        self.sw_printer_active.pack(anchor="w", padx=12, pady=(0, 8))
+        if database.get_config("impresora_activa", "0") == "1":
+            self.sw_printer_active.select()
+        else:
+            self.sw_printer_active.deselect()
+
+        self.sw_printer_auto = ctk.CTkSwitch(printer_card, text="Imprimir Automáticamente al Confirmar")
+        self.sw_printer_auto.pack(anchor="w", padx=12, pady=(0, 10))
+        if database.get_config("impresora_automatica", "0") == "1":
+            self.sw_printer_auto.select()
+        else:
+            self.sw_printer_auto.deselect()
 
         # ================= COLUMNA DERECHA: SIMULADOR DE CHAT =================
         right_box = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=12)
@@ -178,7 +204,11 @@ class SettingsTab(ctk.CTkFrame):
         backend_app.ai_engine.ollama_url = url
         backend_app.ai_engine.model = model
         self.check_ollama()
-        messagebox.showinfo("Configuración", "Parámetros de IA actualizados con éxito.")
+        
+        database.set_config("impresora_activa", "1" if self.sw_printer_active.get() else "0")
+        database.set_config("impresora_automatica", "1" if self.sw_printer_auto.get() else "0")
+        
+        messagebox.showinfo("Configuración", "Parámetros actualizados con éxito.")
 
     def _on_sim_mode_toggle(self):
         # Si está activado (1), forzamos que simulation_mode = True (Desactiva IA real y arroja error)
@@ -209,6 +239,10 @@ class SettingsTab(ctk.CTkFrame):
         self._append_ai_msg(reply)
         if order:
             self._append_system_msg(f"🎉 ¡PEDIDO CREADO EXITOSAMENTE! (ID #{order['id']}) - Ver en Monitor de Pedidos.")
+            
+            from backend.sound_player import play_order_alert_sound
+            play_order_alert_sound()
+            backend_app.notify_ui("new_order", order)
 
     def _append_user_msg(self, text: str):
         self.txt_chat_history.configure(state="normal")
