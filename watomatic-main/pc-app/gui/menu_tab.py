@@ -18,7 +18,7 @@ class CategoryManagerDialog(ctk.CTkToplevel):
         y = (self.winfo_screenheight() // 2) - 260
         self.geometry(f"480x520+{x}+{y}")
         
-        self.configure(fg_color=("#1f2430", "#141721"))
+        self.configure(fg_color="#131314")
         self._build_ui()
         self._refresh_list()
 
@@ -32,7 +32,7 @@ class CategoryManagerDialog(ctk.CTkToplevel):
         lbl_title.pack(pady=(18, 10))
 
         # Sección para agregar nueva categoría
-        add_frame = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=10)
+        add_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=16)
         add_frame.pack(fill="x", padx=20, pady=(0, 10))
 
         ctk.CTkLabel(add_frame, text="Nueva Categoría:", font=ctk.CTkFont(size=12, weight="bold")).pack(anchor="w", padx=12, pady=(10, 4))
@@ -75,7 +75,7 @@ class CategoryManagerDialog(ctk.CTkToplevel):
 
         cats = database.get_all_categories()
         for cat in cats:
-            row = ctk.CTkFrame(self.scroll_cats, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+            row = ctk.CTkFrame(self.scroll_cats, fg_color="#1E1E1E", corner_radius=16)
             row.pack(fill="x", pady=3, padx=2)
 
             lbl_cat_name = ctk.CTkLabel(
@@ -154,7 +154,7 @@ class MenuItemDialog(ctk.CTkToplevel):
         y = (self.winfo_screenheight() // 2) - 300
         self.geometry(f"450x600+{x}+{y}")
         
-        self.configure(fg_color=("#1f2430", "#141721"))
+        self.configure(fg_color="#131314")
         self._build_ui()
 
     def _build_ui(self):
@@ -218,7 +218,7 @@ class MenuItemDialog(ctk.CTkToplevel):
         self.sw_combo = ctk.CTkSwitch(form, text="Habilitar opción en Combo", command=self._toggle_combo)
         self.sw_combo.pack(anchor="w", pady=(5, 5))
 
-        self.combo_frame = ctk.CTkFrame(form, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        self.combo_frame = ctk.CTkFrame(form, fg_color="#1E1E1E", corner_radius=16)
         self.combo_frame.pack(fill="x", pady=(0, 5))
 
         row_c1 = ctk.CTkFrame(self.combo_frame, fg_color="transparent")
@@ -395,7 +395,7 @@ class MenuTab(ctk.CTkFrame):
         btn_refresh.pack(side="right")
 
         # Barra de Configuración de Envío de Menú
-        config_frame = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        config_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=16)
         config_frame.pack(fill="x", padx=15, pady=(0, 10))
         
         lbl_cfg = ctk.CTkLabel(config_frame, text="Formato de envío del menú (IA):", font=ctk.CTkFont(size=13, weight="bold"))
@@ -463,7 +463,7 @@ class MenuTab(ctk.CTkFrame):
                 self._render_menu_row(item)
 
     def _render_menu_row(self, item: dict):
-        card = ctk.CTkFrame(self.scroll_menu, fg_color=("#222734", "#1a1e29"), corner_radius=10)
+        card = ctk.CTkFrame(self.scroll_menu, fg_color="#1E1E1E", corner_radius=16)
         card.pack(fill="x", pady=4, padx=2)
 
         # Fila principal

@@ -44,7 +44,7 @@ def main():
 
     local_ip = get_local_ip()
     print("=" * 65)
-    print("🚀 SISTEMA AUTOMÁTICO DE TOMA DE PEDIDOS CON IA (LLAMA 3.1)")
+    print("🚀 TESO - SISTEMA AUTOMÁTICO DE PEDIDOS CON IA")
     print(f"📡 Servidor Activo en: http://{local_ip}:{args.port}")
     print(f"🔗 Webhook para Android: http://{local_ip}:{args.port}/api/webhook")
     print(f"💓 Heartbeat Endpoint: http://{local_ip}:{args.port}/api/heartbeat")

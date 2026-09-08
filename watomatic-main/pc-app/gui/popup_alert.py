@@ -149,7 +149,7 @@ class OrderAlertPopup(ctk.CTkToplevel):
         btn_dismiss.pack(fill="x")
 
     def _create_field_card(self, parent, title: str, value: str, accent_color: str):
-        card = ctk.CTkFrame(parent, fg_color=("#222734", "#1a1e29"), corner_radius=10)
+        card = ctk.CTkFrame(parent, fg_color="#1E1E1E", corner_radius=16)
         card.pack(fill="x", pady=6)
 
         lbl_t = ctk.CTkLabel(

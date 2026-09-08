@@ -67,7 +67,7 @@ class StorageTab(ctk.CTkFrame):
         self.card_orders.pack(side="left", fill="both", expand=True)
 
         # Contenedor de Acciones de Limpieza
-        actions_box = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=12)
+        actions_box = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=24)
         actions_box.pack(fill="both", expand=True, padx=20, pady=15)
 
         lbl_actions_title = ctk.CTkLabel(
@@ -163,7 +163,7 @@ class StorageTab(ctk.CTkFrame):
         btn_vacuum.pack(side="right")
 
         # Sección de Limpieza Automática
-        auto_box = ctk.CTkFrame(actions_box, fg_color=("#1a1e29", "#13161f"), corner_radius=10)
+        auto_box = ctk.CTkFrame(actions_box, fg_color="#131314", corner_radius=16)
         auto_box.pack(fill="x", padx=20, pady=(15, 20))
 
         lbl_auto = ctk.CTkLabel(
@@ -184,7 +184,7 @@ class StorageTab(ctk.CTkFrame):
         self.combo_auto.pack(side="right", padx=15, pady=12)
 
     def _create_metric_card(self, parent, title: str, initial_val: str, sub_text: str, accent_color: str):
-        card = ctk.CTkFrame(parent, fg_color=("#222734", "#1a1e29"), corner_radius=12)
+        card = ctk.CTkFrame(parent, fg_color="#1E1E1E", corner_radius=24)
 
         lbl_t = ctk.CTkLabel(
             card,

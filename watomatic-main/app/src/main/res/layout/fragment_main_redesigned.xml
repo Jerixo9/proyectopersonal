@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -84,7 +84,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="IP / URL del Servidor PC"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_pc_server_url"
@@ -107,7 +111,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Probar Conexión"
-                            app:cornerRadius="8dp" />
+                            app:cornerRadius="100dp" />
 
                         <TextView
                             android:id="@+id/tv_pc_connection_status"

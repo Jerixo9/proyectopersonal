@@ -5,7 +5,10 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <!-- Customize your theme here. -->
+        <!-- Custom window background -->
+        <item name="android:windowBackground">#131314</item>
+        <item name="colorSurface">#1E1E1E</item>
+        <item name="colorOnSurface">#FFFFFF</item>
     </style>
 
     <!-- Full Screen Dialog Theme -->

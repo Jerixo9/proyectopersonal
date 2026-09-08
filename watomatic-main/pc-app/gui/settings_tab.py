@@ -18,7 +18,7 @@ class SettingsTab(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         # ================= COLUMNA IZQUIERDA: CONFIGURACIÓN =================
-        left_box = ctk.CTkScrollableFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=12)
+        left_box = ctk.CTkScrollableFrame(self, fg_color="#1E1E1E", corner_radius=24)
         left_box.grid(row=0, column=0, sticky="nsew", padx=(15, 8), pady=15)
 
         lbl_cfg_title = ctk.CTkLabel(
@@ -30,7 +30,7 @@ class SettingsTab(ctk.CTkFrame):
         lbl_cfg_title.pack(anchor="w", padx=15, pady=(15, 12))
 
         # 1. Estado de Ollama
-        ollama_card = ctk.CTkFrame(left_box, fg_color=("#1a1e29", "#13161f"), corner_radius=10)
+        ollama_card = ctk.CTkFrame(left_box, fg_color="#131314", corner_radius=16)
         ollama_card.pack(fill="x", padx=15, pady=(0, 15))
 
         lbl_ol_title = ctk.CTkLabel(
@@ -90,7 +90,7 @@ class SettingsTab(ctk.CTkFrame):
         btn_save_cfg.pack(fill="x", padx=15, pady=(0, 15))
 
         # 3. Configuración de Impresora
-        printer_card = ctk.CTkFrame(left_box, fg_color=("#1a1e29", "#13161f"), corner_radius=10)
+        printer_card = ctk.CTkFrame(left_box, fg_color="#131314", corner_radius=16)
         printer_card.pack(fill="x", padx=15, pady=(0, 15))
 
         lbl_printer_title = ctk.CTkLabel(
@@ -116,7 +116,7 @@ class SettingsTab(ctk.CTkFrame):
             self.sw_printer_auto.deselect()
 
         # ================= COLUMNA DERECHA: SIMULADOR DE CHAT =================
-        right_box = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=12)
+        right_box = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=24)
         right_box.grid(row=0, column=1, sticky="nsew", padx=(8, 15), pady=15)
         right_box.grid_rowconfigure(1, weight=1)
         right_box.grid_columnconfigure(0, weight=1)
@@ -150,7 +150,7 @@ class SettingsTab(ctk.CTkFrame):
             font=ctk.CTkFont(size=13),
             wrap="word",
             state="disabled",
-            fg_color=("#1a1e29", "#13161f")
+            fg_color="#131314"
         )
         self.txt_chat_history.grid(row=1, column=0, sticky="nsew", padx=15, pady=(0, 10))
 

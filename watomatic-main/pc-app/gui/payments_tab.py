@@ -18,7 +18,7 @@ class PaymentDialog(ctk.CTkToplevel):
         y = (self.winfo_screenheight() // 2) - 160
         self.geometry(f"400x320+{x}+{y}")
         
-        self.configure(fg_color=("#1f2430", "#141721"))
+        self.configure(fg_color="#131314")
         self._build_ui()
 
     def _build_ui(self):
@@ -127,7 +127,7 @@ class PaymentsTab(ctk.CTkFrame):
         btn_refresh.pack(side="right")
 
         # Barra de Configuración de Domicilio
-        domicilio_frame = ctk.CTkFrame(self, fg_color=("#222734", "#1a1e29"), corner_radius=8)
+        domicilio_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=16)
         domicilio_frame.pack(fill="x", padx=15, pady=(0, 10))
         
         lbl_dom = ctk.CTkLabel(domicilio_frame, text="Configuración de Domicilio:", font=ctk.CTkFont(size=13, weight="bold"))
@@ -184,7 +184,7 @@ class PaymentsTab(ctk.CTkFrame):
             self._render_payment_card(p)
 
     def _render_payment_card(self, payment: dict):
-        card = ctk.CTkFrame(self.scroll_payments, fg_color=("#222734", "#1a1e29"), corner_radius=10)
+        card = ctk.CTkFrame(self.scroll_payments, fg_color="#1E1E1E", corner_radius=16)
         card.pack(fill="x", pady=6, padx=2)
 
         main_row = ctk.CTkFrame(card, fg_color="transparent")
