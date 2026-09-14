@@ -1,0 +1,23 @@
+
+================================
+         RESTAURANTE OTTO
+       Ticket de Preparacion
+================================
+Fecha: 10/09/2026 18:52:21
+Pedido #: 69
+Cliente: Cliente_Prueba_PC
+--------------------------------
+PRODUCTOS:
+1x Hamburguesa Doble Carne (sin queso) ($24,000)
+1x Hamburguesa Clásica (sin lechuga) ($18,000)
+--------------------------------
+NOTAS ESPECIALES:
+Hamburguesa Doble Carne: sin queso
+Hamburguesa Clásica: sin lechuga
+--------------------------------
+TOTAL A PAGAR: $42,000 COP
+MEDIO DE PAGO: Nequi
+CAMBIO DE: Exacto / N/A
+DIRECCION: calle 37
+================================
+      *** FIN DE PEDIDO ***
